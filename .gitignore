@@ -1,0 +1,55 @@
+# Archivos y directorios de PHP.
+var/
+vendor/
+composer.lock
+
+# Archivos de caché y directorios temporales.
+.phpunit.result.cache
+.php-cs-fixer.cache
+phpstan.cache
+coverage/
+.phpunit.cache/
+
+# Archivos específicos de IDEs y editores.
+.idea/
+.vscode/
+*.sublime-*
+*.swp
+*.swo
+*~
+.project
+.buildpath
+.settings/
+
+# Archivos específicos del sistema operativo.
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Archivos de entorno y configuración.
+.env
+.env.local
+.env.*.local
+*.env.local
+.env.backup
+
+# Archivos de log.
+*.log
+logs/
+
+# Archivos de build y compilación.
+dist/
+build/
+
+# Otros archivos y directorios comunes a ignorar.
+.sass-cache/
+.tmp/
+.htaccess
+*.bak
+*.cache
+*.tmp

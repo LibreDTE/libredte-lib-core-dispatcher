@@ -1,0 +1,102 @@
+# Importación de servicios de la Biblioteca PHP (Core) de LibreDTE.
+#
+# `libredte\lib\Core\Application` (inicializado por `Bootstrap::boot()`) resuelve
+# su `kernel.project_dir` al root del proyecto de composer cuyo autoloader está
+# activo en tiempo de ejecución — es decir, la raíz de este paquete cuando es el
+# punto de entrada — por lo que este archivo, y no el de `libredte-lib-core`,
+# es el que realmente se carga. Este archivo reenvía la carga al de core y luego
+# registra los servicios propios de este paquete encima.
+imports:
+  - { resource: '../vendor/libredte/libredte-lib-core/config/services.yaml' }
+
+parameters:
+    # libredte-lib-core/config/services.yaml define esto como
+    # '%kernel.project_dir%' (la raíz del proyecto que importa), lo cual deja
+    # recursos como resources/data/repository/*.php irresolubles a menos que el
+    # proyecto importador tenga su propia copia. Este proyecto no la tiene,
+    # así que apunta a la ubicación real en vendor en su lugar.
+    libredte.lib.core.project_dir: '%kernel.project_dir%/vendor/libredte/libredte-lib-core'
+
+# Servicios que provee este paquete.
+services:
+
+    # Configuración por defecto de los servicios.
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+
+    # Deserializadores.
+    #
+    # Cada uno delega en un servicio o fábrica real ya resuelto por el
+    # contenedor importado arriba (CafLoaderWorkerInterface,
+    # EmisorFactoryInterface, ReceptorFactoryInterface,
+    # MandatarioFactoryInterface, DispatcherWorkerInterface — todos ya
+    # registrados por el propio services.yaml de libredte-lib-core), así que
+    # el autowiring resuelve sus dependencias del constructor sin
+    # configuración adicional, incluso cuando algunas son servicios privados,
+    # porque el autowiring funciona en todo el grafo compilado sin importar
+    # visibilidad.
+    libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Document\DocumentBagDeserializer: ~
+    libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Document\DocumentEnvelopeDeserializer: ~
+    libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Identifier\CafDeserializer: ~
+    libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Integration\SiiRequestDeserializer: ~
+    libredte\lib\CoreDispatcher\Service\Deserializer\Billing\TradingParties\EmisorDeserializer: ~
+    libredte\lib\CoreDispatcher\Service\Deserializer\Billing\TradingParties\MandatarioDeserializer: ~
+    libredte\lib\CoreDispatcher\Service\Deserializer\Billing\TradingParties\ReceptorDeserializer: ~
+    libredte\lib\CoreDispatcher\Service\Deserializer\CertificateDeserializer: ~
+    libredte\lib\CoreDispatcher\Service\Deserializer\XmlDocumentDeserializer: ~
+
+    # Registro de deserializadores de derafu/backbone-dispatcher, con
+    # FromArrayDeserializer como respaldo para clases que usan esa convención
+    # sin necesitar registro explícito.
+    #
+    # `lazy: true` resuelve la referencia circular que esto genera:
+    # DocumentBagDeserializer y SiiRequestDeserializer requieren este mismo
+    # registro (para deserializar recursivamente los campos anidados) y a la
+    # vez forman parte ellos mismos del mapa $deserializers.
+    Derafu\BackboneDispatcher\Contract\ObjectFactoryInterface:
+        class: Derafu\BackboneDispatcher\Service\ObjectFactoryRegistry
+        lazy: true
+        arguments:
+            $deserializers:
+                libredte\lib\Core\Package\Billing\Component\Document\Contract\DocumentBagInterface: '@libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Document\DocumentBagDeserializer'
+                libredte\lib\Core\Package\Billing\Component\Document\Contract\DocumentEnvelopeInterface: '@libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Document\DocumentEnvelopeDeserializer'
+                libredte\lib\Core\Package\Billing\Component\Identifier\Contract\CafInterface: '@libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Identifier\CafDeserializer'
+                libredte\lib\Core\Package\Billing\Component\Integration\Contract\SiiRequestInterface: '@libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Integration\SiiRequestDeserializer'
+                libredte\lib\Core\Package\Billing\Component\TradingParties\Contract\EmisorInterface: '@libredte\lib\CoreDispatcher\Service\Deserializer\Billing\TradingParties\EmisorDeserializer'
+                libredte\lib\Core\Package\Billing\Component\TradingParties\Contract\MandatarioInterface: '@libredte\lib\CoreDispatcher\Service\Deserializer\Billing\TradingParties\MandatarioDeserializer'
+                libredte\lib\Core\Package\Billing\Component\TradingParties\Contract\ReceptorInterface: '@libredte\lib\CoreDispatcher\Service\Deserializer\Billing\TradingParties\ReceptorDeserializer'
+                Derafu\Certificate\Contract\CertificateInterface: '@libredte\lib\CoreDispatcher\Service\Deserializer\CertificateDeserializer'
+                Derafu\Xml\Contract\XmlDocumentInterface: '@libredte\lib\CoreDispatcher\Service\Deserializer\XmlDocumentDeserializer'
+
+            $fallback: '@Derafu\BackboneDispatcher\Service\FromArrayDeserializer'
+
+    Derafu\BackboneDispatcher\Service\FromArrayDeserializer: ~
+
+    # Resto de la cadena de dispatch de derafu/backbone-dispatcher.
+    Derafu\BackboneDispatcher\Service\Caster: ~
+    Derafu\BackboneDispatcher\Service\Inspector: ~
+    Derafu\BackboneDispatcher\Service\Resolver: ~
+    Derafu\BackboneDispatcher\Service\Validator: ~
+
+    Derafu\BackboneDispatcher\Service\Serializer: ~
+    Derafu\BackboneDispatcher\Contract\SerializerInterface:
+        alias: Derafu\BackboneDispatcher\Service\Serializer
+
+    Invoker\InvokerInterface:
+        class: Invoker\Invoker
+
+    Derafu\BackboneDispatcher\Contract\DirectDispatcherInterface:
+        class: Derafu\BackboneDispatcher\Service\DirectDispatcher
+
+    Derafu\BackboneDispatcher\Contract\TypedDispatcherInterface:
+        class: Derafu\BackboneDispatcher\Service\TypedDispatcher
+
+    Derafu\BackboneDispatcher\Contract\SafeDispatcherInterface:
+        class: Derafu\BackboneDispatcher\Service\SafeDispatcher
+        public: true
+        arguments:
+            $environment: '%kernel.environment%'
+            $debug: '%kernel.debug%'
+            $projectDir: '%kernel.project_dir%'

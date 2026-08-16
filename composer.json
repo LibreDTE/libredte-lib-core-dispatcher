@@ -1,0 +1,45 @@
+{
+    "name": "libredte/libredte-lib-core-dispatcher",
+    "description": "LibreDTE: Conector (Dispatcher) para exponer la Biblioteca PHP (Core) de forma segura a otros lenguajes.",
+    "type": "library",
+    "keywords": ["dte", "lce", "sii", "facturación electrónica", "chile"],
+    "homepage": "https://www.libredte.cl",
+    "license": "AGPL-3.0+",
+    "authors": [
+        {
+            "name": "LibreDTE",
+            "homepage": "https://www.libredte.cl"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "libredte\\lib\\CoreDispatcher\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "libredte\\lib\\TestsCoreDispatcher\\": "tests/src/"
+        }
+    },
+    "require": {
+        "php": "^8.5",
+        "derafu/backbone": "dev-main",
+        "derafu/backbone-dispatcher": "dev-main",
+        "libredte/libredte-lib-core": "dev-master",
+        "php-di/invoker": "^2.3"
+    },
+    "require-dev": {
+        "ext-xdebug": "*",
+        "friendsofphp/php-cs-fixer": "^3.95",
+        "phpstan/phpstan": "^2.2",
+        "phpunit/phpunit": "^13.2"
+    },
+    "scripts": {
+        "tests": "XDEBUG_MODE=coverage vendor/bin/phpunit --configuration=phpunit.xml",
+        "phpcs-fix": "vendor/bin/php-cs-fixer fix -v --config=php-cs-fixer.php",
+        "phpcs": "vendor/bin/php-cs-fixer fix -v --dry-run --diff --config=php-cs-fixer.php",
+        "phpstan": "vendor/bin/phpstan analyse --configuration=phpstan.neon --memory-limit=1G"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
