@@ -24,8 +24,8 @@ declare(strict_types=1);
 
 namespace libredte\lib\TestsCoreDispatcher\Service\Deserializer\Billing\Integration;
 
-use Derafu\BackboneDispatcher\Service\FromArrayDeserializer;
-use Derafu\BackboneDispatcher\Service\ObjectFactoryRegistry;
+use Derafu\BackboneDispatcher\Service\Deserialization\FromArrayDeserializer;
+use Derafu\BackboneDispatcher\Service\Deserialization\ObjectFactoryRegistry;
 use Derafu\Certificate\Contract\CertificateInterface;
 use Derafu\Certificate\Service\CertificateLoader;
 use InvalidArgumentException;

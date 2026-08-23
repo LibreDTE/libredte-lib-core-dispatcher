@@ -56,7 +56,7 @@ services:
     # registro (para deserializar recursivamente los campos anidados) y a la
     # vez forman parte ellos mismos del mapa $deserializers.
     Derafu\BackboneDispatcher\Contract\ObjectFactoryInterface:
-        class: Derafu\BackboneDispatcher\Service\ObjectFactoryRegistry
+        class: Derafu\BackboneDispatcher\Service\Deserialization\ObjectFactoryRegistry
         lazy: true
         arguments:
             $deserializers:
@@ -70,31 +70,41 @@ services:
                 Derafu\Certificate\Contract\CertificateInterface: '@libredte\lib\CoreDispatcher\Service\Deserializer\CertificateDeserializer'
                 Derafu\Xml\Contract\XmlDocumentInterface: '@libredte\lib\CoreDispatcher\Service\Deserializer\XmlDocumentDeserializer'
 
-            $fallback: '@Derafu\BackboneDispatcher\Service\FromArrayDeserializer'
+            $fallback: '@Derafu\BackboneDispatcher\Service\Deserialization\FromArrayDeserializer'
 
-    Derafu\BackboneDispatcher\Service\FromArrayDeserializer: ~
+    Derafu\BackboneDispatcher\Service\Deserialization\FromArrayDeserializer: ~
 
     # Resto de la cadena de dispatch de derafu/backbone-dispatcher.
-    Derafu\BackboneDispatcher\Service\Caster: ~
-    Derafu\BackboneDispatcher\Service\Inspector: ~
-    Derafu\BackboneDispatcher\Service\Resolver: ~
-    Derafu\BackboneDispatcher\Service\Validator: ~
+    Derafu\BackboneDispatcher\Service\Resolution\Caster: ~
+    Derafu\BackboneDispatcher\Service\Reflection\Inspector: ~
+    Derafu\BackboneDispatcher\Contract\InspectorInterface:
+        alias: Derafu\BackboneDispatcher\Service\Reflection\Inspector
+    Derafu\BackboneDispatcher\Service\Resolution\Resolver: ~
+    Derafu\BackboneDispatcher\Service\Resolution\Validator: ~
 
-    Derafu\BackboneDispatcher\Service\Serializer: ~
+    Derafu\BackboneDispatcher\Service\Serialization\Serializer: ~
     Derafu\BackboneDispatcher\Contract\SerializerInterface:
-        alias: Derafu\BackboneDispatcher\Service\Serializer
+        alias: Derafu\BackboneDispatcher\Service\Serialization\Serializer
 
-    Invoker\InvokerInterface:
-        class: Invoker\Invoker
+    # TODO: descomentar una vez que todas las operaciones reales que este
+    # bridge expone estén marcadas con #[Operation] en libredte-lib-core
+    # (confirmado hoy: billing.identifier.caf_loader::load no lo está, y
+    # bloquea el dispatch real si esta política queda activa). Sin esto,
+    # DirectDispatcher usa su default (AllowAllOperationPolicy), que expone
+    # cualquier método público de cualquier worker, incluyendo los que
+    # aportan traits como JobsAwareTrait/HandlersAwareTrait/OptionsAwareTrait.
+    # Derafu\BackboneDispatcher\Service\Policy\TaggedOperationPolicy: ~
+    # Derafu\BackboneDispatcher\Contract\OperationPolicyInterface:
+    #     alias: Derafu\BackboneDispatcher\Service\Policy\TaggedOperationPolicy
 
     Derafu\BackboneDispatcher\Contract\DirectDispatcherInterface:
-        class: Derafu\BackboneDispatcher\Service\DirectDispatcher
+        class: Derafu\BackboneDispatcher\Service\Dispatch\DirectDispatcher
 
     Derafu\BackboneDispatcher\Contract\TypedDispatcherInterface:
-        class: Derafu\BackboneDispatcher\Service\TypedDispatcher
+        class: Derafu\BackboneDispatcher\Service\Dispatch\TypedDispatcher
 
     Derafu\BackboneDispatcher\Contract\SafeDispatcherInterface:
-        class: Derafu\BackboneDispatcher\Service\SafeDispatcher
+        class: Derafu\BackboneDispatcher\Service\Dispatch\SafeDispatcher
         public: true
         arguments:
             $environment: '%kernel.environment%'

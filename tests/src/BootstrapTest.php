@@ -109,7 +109,7 @@ class BootstrapTest extends TestCase
 
     public function testNeverThrowsAndReturnsAProblemDetailForAnUnknownOperation(): void
     {
-        $request = OperationRequest::fromId('unknown_package.unknown_component.unknown_worker:operation');
+        $request = OperationRequest::fromId('unknown_package.unknown_component.unknown_worker::operation');
 
         $result = $this->dispatcher->dispatch($request);
 

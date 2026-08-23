@@ -25,8 +25,7 @@
         "php": "^8.5",
         "derafu/backbone": "dev-main",
         "derafu/backbone-dispatcher": "dev-main",
-        "libredte/libredte-lib-core": "dev-master",
-        "php-di/invoker": "^2.3"
+        "libredte/libredte-lib-core": "dev-master"
     },
     "require-dev": {
         "ext-xdebug": "*",
