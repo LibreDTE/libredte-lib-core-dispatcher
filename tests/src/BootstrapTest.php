@@ -25,6 +25,7 @@ declare(strict_types=1);
 namespace libredte\lib\TestsCoreDispatcher;
 
 use Derafu\BackboneDispatcher\Contract\SafeDispatcherInterface;
+use Derafu\BackboneDispatcher\Contract\SafeExplorerInterface;
 use Derafu\BackboneDispatcher\ValueObject\OperationRequest;
 use libredte\lib\Core\Application;
 use libredte\lib\Core\Package\Billing\Component\Document\Exception\DocumentException;
@@ -158,5 +159,32 @@ class BootstrapTest extends TestCase
 
         $this->assertFalse($result->isSuccess());
         $this->assertSame(DocumentException::class, $result->getProblem()->toArray()['title']);
+    }
+
+    public function testBootExplorerReturnsASafeExplorer(): void
+    {
+        $explorer = Bootstrap::bootExplorer('test', true);
+
+        $this->assertInstanceOf(SafeExplorerInterface::class, $explorer);
+    }
+
+    public function testBootExplorerListsTheRealBillingPackage(): void
+    {
+        $explorer = Bootstrap::bootExplorer('test', true);
+
+        $result = $explorer->getPackage('billing');
+
+        $this->assertTrue($result->isSuccess());
+        $this->assertSame('billing', $result->getValue()['id']);
+    }
+
+    public function testBootExplorerNeverThrowsAndReturnsAProblemForAnUnknownPackage(): void
+    {
+        $explorer = Bootstrap::bootExplorer('test', true);
+
+        $result = $explorer->getComponents('unknown_package');
+
+        $this->assertFalse($result->isSuccess());
+        $this->assertNotNull($result->getProblem());
     }
 }

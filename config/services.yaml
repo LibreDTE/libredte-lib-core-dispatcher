@@ -110,3 +110,15 @@ services:
             $environment: '%kernel.environment%'
             $debug: '%kernel.debug%'
             $projectDir: '%kernel.project_dir%'
+
+    Derafu\BackboneDispatcher\Service\Discovery\Explorer: ~
+    Derafu\BackboneDispatcher\Contract\ExplorerInterface:
+        alias: Derafu\BackboneDispatcher\Service\Discovery\Explorer
+
+    Derafu\BackboneDispatcher\Contract\SafeExplorerInterface:
+        class: Derafu\BackboneDispatcher\Service\Discovery\SafeExplorer
+        public: true
+        arguments:
+            $environment: '%kernel.environment%'
+            $debug: '%kernel.debug%'
+            $projectDir: '%kernel.project_dir%'

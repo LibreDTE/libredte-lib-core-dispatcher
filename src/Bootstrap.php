@@ -25,12 +25,13 @@ declare(strict_types=1);
 namespace libredte\lib\CoreDispatcher;
 
 use Derafu\BackboneDispatcher\Contract\SafeDispatcherInterface;
+use Derafu\BackboneDispatcher\Contract\SafeExplorerInterface;
 use Derafu\Kernel\Contract\EnvironmentInterface;
 use libredte\lib\Core\Application;
 
 /**
- * Construye un `SafeDispatcherInterface` cableado para exponer las
- * operaciones de `libredte-lib-core`.
+ * Construye un `SafeDispatcherInterface`/`SafeExplorerInterface` cableados
+ * para exponer/explorar las operaciones de `libredte-lib-core`.
  *
  * Autocontenido: lo único que necesita de `libredte-lib-core` es su propia
  * `Application`. Todo servicio que provee este paquete —los Deserializers,
@@ -52,5 +53,18 @@ final class Bootstrap
         assert($dispatcher instanceof SafeDispatcherInterface);
 
         return $dispatcher;
+    }
+
+    public static function bootExplorer(
+        string $environment = EnvironmentInterface::PRODUCTION,
+        bool $debug = false,
+    ): SafeExplorerInterface {
+        $explorer = Application::getInstance($environment, $debug)
+            ->getService(SafeExplorerInterface::class)
+        ;
+
+        assert($explorer instanceof SafeExplorerInterface);
+
+        return $explorer;
     }
 }
