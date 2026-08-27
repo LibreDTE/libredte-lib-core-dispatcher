@@ -28,3 +28,6 @@ expect:
     value_contains:
       renderings.0.label: tributaria
       renderings.0.content: '*'
+    value_matches_jmespath:
+      "length(renderings)": 1
+      "length(renderings[?label=='cedible'])": 0

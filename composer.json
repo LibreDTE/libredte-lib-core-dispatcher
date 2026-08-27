@@ -33,7 +33,9 @@
         "friendsofphp/php-cs-fixer": "^3.95",
         "phpstan/phpstan": "^2.2",
         "phpunit/phpunit": "^13.2",
-        "symfony/yaml": "^7.4 || ^8.0"
+        "symfony/yaml": "^8.0",
+        "derafu/selector": "dev-main",
+        "mtdowling/jmespath.php": "^2.8"
     },
     "scripts": {
         "tests": "XDEBUG_MODE=coverage vendor/bin/phpunit --configuration=phpunit.xml",

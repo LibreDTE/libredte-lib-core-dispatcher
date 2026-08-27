@@ -27,6 +27,7 @@ namespace libredte\lib\TestsCoreDispatcher;
 use Derafu\BackboneDispatcher\Contract\OperationResultInterface;
 use Derafu\BackboneDispatcher\Contract\SafeDispatcherInterface;
 use Derafu\BackboneDispatcher\ValueObject\OperationRequest;
+use Derafu\Selector\Selector;
 use FilesystemIterator;
 use libredte\lib\CoreDispatcher\Bootstrap;
 use libredte\lib\TestsCoreDispatcher\Fixture\FixtureContext;
@@ -64,7 +65,8 @@ use Symfony\Component\Yaml\Yaml;
  *     parameters: array   # valores, o placeholders `{{método}}` resueltos
  *                         # contra FixtureContext antes de despachar
  *   expect:
- *     success: {value_contains: {...}}       # y/o value_equals: <valor>, o
+ *     success: {value_contains: {...}}       # y/o value_equals: <valor>, y/o
+ *                                             # value_matches_jmespath: {...}
  *     failure: {problem_title: string}       # o
  *     either: {success: {...}, failure: {...}}  # cualquiera de los dos
  *                                                # cuenta como éxito del test
@@ -75,6 +77,15 @@ use Symfony\Component\Yaml\Yaml;
  * necesario para operaciones cuyo resultado es un arreglo simple (ej.
  * `sii_rcv::listDocumentEvents`, que retorna `[]` cuando no hay eventos:
  * no hay ningún path que recorrer, pero sí un valor exacto que afirmar).
+ *
+ * `value_matches_jmespath` evalúa cada clave como una expresión JMESPath
+ * (vía `derafu/selector`) contra `getValue()` y compara el resultado con lo
+ * esperado — a diferencia de `value_contains`, puede expresar cosas que un
+ * path plano no puede: ausencia (`"length(renderings[?label=='cedible'])":
+ * 0`), conteo exacto (`"length(renderings)": 2`) o filtros/proyecciones
+ * (`"renderings[?label=='cedible'].mimeType | [0]": application/pdf`).
+ * Reservado para esos casos — `value_contains` sigue siendo preferible para
+ * comparar un valor puntual por path simple, es más fácil de leer.
  */
 #[CoversNothing]
 class OperationFixturesTest extends TestCase
@@ -223,6 +234,10 @@ class OperationFixturesTest extends TestCase
         foreach ($expect['value_contains'] ?? [] as $path => $expected) {
             $this->assertValueContains((string) $path, $expected, $value);
         }
+
+        foreach ($expect['value_matches_jmespath'] ?? [] as $expression => $expected) {
+            $this->assertValueMatchesJmesPath((string) $expression, $expected, $value);
+        }
     }
 
     /**
@@ -284,6 +299,30 @@ class OperationFixturesTest extends TestCase
         }
 
         $this->assertSame($expected, $current, sprintf('Value at "%s" does not match.', $path));
+    }
+
+    /**
+     * Evalúa una expresión JMESPath (vía `derafu/selector`) contra `$actual`
+     * y compara el resultado con `$expected` — reservado para lo que
+     * `assertValueContains()` no puede expresar con un path plano: ausencia,
+     * conteo, o filtros/proyecciones (ver el docblock de la clase).
+     */
+    private function assertValueMatchesJmesPath(
+        string $expression,
+        mixed $expected,
+        mixed $actual
+    ): void {
+        $this->assertIsArray($actual, sprintf(
+            'Expected an array to evaluate the JMESPath expression "%s".',
+            $expression,
+        ));
+
+        $result = Selector::get($actual, 'jmespath:' . $expression);
+
+        $this->assertSame($expected, $result, sprintf(
+            'JMESPath expression "%s" did not match the expected value.',
+            $expression,
+        ));
     }
 
     private function describeFailure(OperationResultInterface $result): string

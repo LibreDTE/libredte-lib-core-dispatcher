@@ -30,3 +30,5 @@ expect:
       renderings.0.copyNumber: 1
       renderings.0.content: '*'
       renderings.0.filename: '*'
+    value_matches_jmespath:
+      "length(renderings)": 1

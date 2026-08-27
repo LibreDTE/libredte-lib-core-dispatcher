@@ -29,3 +29,5 @@ expect:
       renderings.0.content: '*'
       renderings.1.label: cedible
       renderings.1.content: '*'
+    value_matches_jmespath:
+      "length(renderings)": 2
