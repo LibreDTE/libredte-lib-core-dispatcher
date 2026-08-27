@@ -24,7 +24,7 @@ declare(strict_types=1);
 
 namespace libredte\lib\TestsCoreDispatcher\Service\Deserializer\Billing\Document;
 
-use InvalidArgumentException;
+use Derafu\BackboneDispatcher\Exception\UnsupportedDataTypeException;
 use libredte\lib\Core\Application;
 use libredte\lib\Core\Package\Billing\Component\Document\Contract\DispatcherWorkerInterface;
 use libredte\lib\Core\Package\Billing\Component\Document\Contract\DocumentEnvelopeInterface;
@@ -68,7 +68,7 @@ class DocumentEnvelopeDeserializerTest extends TestCase
 
     public function testRejectsNonStringData(): void
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(UnsupportedDataTypeException::class);
 
         $this->deserializer->deserialize(['not' => 'a string'], DocumentEnvelopeInterface::class);
     }

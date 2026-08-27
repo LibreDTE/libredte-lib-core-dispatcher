@@ -1,0 +1,20 @@
+# billing.identifier.caf_loader::load
+#
+# Carga un CAF (Código de Autorización de Folios) desde su XML y lo entrega
+# como entidad CAF. Caso de uso externo típico: recibir un CAF ya
+# solicitado al SII (aquí, uno fresco generado en el test) y cargarlo.
+description: >
+  Carga un CAF fresco desde su XML.
+
+request:
+  package: billing
+  component: identifier
+  worker: caf_loader
+  operation: load
+  parameters:
+    xml: "{{cafFacturaAfecta}}"
+
+expect:
+  success:
+    value_contains:
+      tipoDocumento: 33

@@ -1,0 +1,48 @@
+# billing.exchange.sender::send (camino real, con credenciales)
+#
+# A diferencia de send.yaml (credenciales vacías, siempre falla localmente
+# sin red), esta fixture usa MAIL_USERNAME/MAIL_PASSWORD reales — sin
+# configurar (tests/env-tests), el placeholder {{mailTransport}} entrega
+# `null` y el test se salta. Con credenciales reales, envía un correo real
+# por SMTP a la misma cuenta (nunca a un tercero: sender y receiver son el
+# mismo correo).
+description: >
+  Envía un sobre real por SMTP a la misma cuenta configurada en env-tests.
+
+request:
+  package: billing
+  component: exchange
+  worker: sender
+  operation: send
+  parameters:
+    bag:
+      options:
+        strategy: email.smtp
+        transport: "{{mailTransport}}"
+      envelopes:
+        - sender:
+            identifier:
+              value: '76192083-9'
+              schemeId: CL-RUT
+            endpoints:
+              - value: "{{mailUsername}}"
+                schemeId: EMAIL
+          receiver:
+            identifier:
+              value: '76192083-9'
+              schemeId: CL-RUT
+            endpoints:
+              - value: "{{mailUsername}}"
+                schemeId: EMAIL
+          documentType: 'urn:fdc:libredte.cl:2025:doc:invoice'
+          process: 'urn:fdc:libredte.cl:2025:poacc:billing'
+          businessMessageID: envio-real-001
+          documents:
+            - type: 'urn:fdc:libredte.cl:2025:doc:invoice'
+              content: '<EnvioDTE>Fixture de prueba de billing.exchange.sender::send</EnvioDTE>'
+
+expect:
+  success:
+    value_contains:
+      0.statuses.0.strategy: email.smtp
+      0.statuses.0.error: null

@@ -37,6 +37,7 @@ desktop.ini
 .env.*.local
 *.env.local
 .env.backup
+/tests/env-tests
 
 # Archivos de log.
 *.log

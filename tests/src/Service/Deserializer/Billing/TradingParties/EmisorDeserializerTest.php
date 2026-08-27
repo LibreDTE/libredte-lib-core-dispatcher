@@ -24,7 +24,7 @@ declare(strict_types=1);
 
 namespace libredte\lib\TestsCoreDispatcher\Service\Deserializer\Billing\TradingParties;
 
-use InvalidArgumentException;
+use Derafu\BackboneDispatcher\Exception\UnsupportedDataTypeException;
 use libredte\lib\Core\Package\Billing\Component\TradingParties\Contract\EmisorInterface;
 use libredte\lib\Core\Package\Billing\Component\TradingParties\Factory\EmisorFactory;
 use libredte\lib\CoreDispatcher\Service\Deserializer\Billing\TradingParties\EmisorDeserializer;
@@ -55,7 +55,7 @@ class EmisorDeserializerTest extends TestCase
 
     public function testRejectsNonArrayData(): void
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(UnsupportedDataTypeException::class);
 
         $this->deserializer->deserialize('not-an-array', EmisorInterface::class);
     }

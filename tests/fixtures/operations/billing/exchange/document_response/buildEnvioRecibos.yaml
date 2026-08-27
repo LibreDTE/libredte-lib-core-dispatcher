@@ -1,0 +1,33 @@
+# billing.exchange.document_response::buildEnvioRecibos
+#
+# Construye un recibo de mercaderías/servicios (acción ERM) para un DTE
+# recibido de un tercero.
+description: >
+  Construye un EnvioRecibos con un recibo.
+
+request:
+  package: billing
+  component: exchange
+  worker: document_response
+  operation: buildEnvioRecibos
+  parameters:
+    bag:
+      tipo: envio_recibos
+      caratula:
+        RutResponde: '76192083-9'
+        RutRecibe: '88888888-8'
+      data:
+        - TipoDoc: 33
+          Folio: 1
+          FchEmis: '2024-01-15'
+          RUTEmisor: '88888888-8'
+          RUTRecep: '76192083-9'
+          MntTotal: 100000
+          Recinto: Oficina central
+          RutFirma: '76192083-9'
+      certificate: "{{certificate}}"
+
+expect:
+  success:
+    value_contains:
+      EnvioRecibos.SetRecibos.Caratula.RutResponde: '76192083-9'

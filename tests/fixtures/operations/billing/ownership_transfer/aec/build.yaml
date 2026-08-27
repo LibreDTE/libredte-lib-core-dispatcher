@@ -1,0 +1,39 @@
+# billing.ownership_transfer.aec::build (primera cesión)
+#
+# `source` es una unión `DocumentInterface|Aec`. Se pasa el XML de un DTE
+# (factura afecta) como string plano — `AecBagDeserializer` inspecciona la
+# etiqueta raíz del XML (`DTE`, no `AEC`) y lo resuelve como primera cesión,
+# vía `DocumentBagManagerWorkerInterface::create()`.
+description: >
+  Construye un AEC de primera cesión, cediendo una factura afecta.
+
+request:
+  package: billing
+  component: ownership_transfer
+  worker: aec
+  operation: build
+  parameters:
+    bag:
+      source: "{{facturaAfectaXml}}"
+      cedente:
+        RUT: '76192083-9'
+        RazonSocial: SASCO SpA
+        Direccion: Santa Cruz, Chile
+        eMail: cedente@example.com
+        RUTAutorizado:
+          RUT: '76192083-9'
+          Nombre: Administrador
+      cesionario:
+        RUT: '76354771-K'
+        RazonSocial: Factoring S.A.
+        Direccion: Providencia, Santiago
+        eMail: factoring@example.com
+      cesion:
+        MontoCesion: 119000
+        UltimoVencimiento: '2024-02-14'
+      certificate: "{{certificate}}"
+
+expect:
+  success:
+    value_contains:
+      AEC.DocumentoAEC.Caratula.RutCedente: '76192083-9'

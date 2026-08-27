@@ -24,11 +24,11 @@ declare(strict_types=1);
 
 namespace libredte\lib\TestsCoreDispatcher\Service\Deserializer\Billing\Integration;
 
+use Derafu\BackboneDispatcher\Exception\UnsupportedDataTypeException;
 use Derafu\BackboneDispatcher\Service\Deserialization\FromArrayDeserializer;
 use Derafu\BackboneDispatcher\Service\Deserialization\ObjectFactoryRegistry;
 use Derafu\Certificate\Contract\CertificateInterface;
 use Derafu\Certificate\Service\CertificateLoader;
-use InvalidArgumentException;
 use libredte\lib\Core\Package\Billing\Component\Integration\Contract\SiiRequestInterface;
 use libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Integration\SiiRequestDeserializer;
 use libredte\lib\CoreDispatcher\Service\Deserializer\CertificateDeserializer;
@@ -74,7 +74,7 @@ class SiiRequestDeserializerTest extends TestCase
 
     public function testRejectsNonArrayData(): void
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(UnsupportedDataTypeException::class);
 
         $this->deserializer->deserialize('not-an-array', SiiRequestInterface::class);
     }

@@ -1,0 +1,41 @@
+# billing.exchange.receiver::receive (camino real, con credenciales)
+#
+# A diferencia de receive.yaml (credenciales vacías, siempre falla
+# localmente sin red), esta fixture usa MAIL_USERNAME/MAIL_PASSWORD reales
+# — sin configurar (tests/env-tests), los placeholders {{mailUsername}}/
+# {{mailPassword}} entregan `null` y el test se salta. Con credenciales
+# reales, se conecta de verdad por IMAP a esa cuenta. No se afirma nada
+# sobre el contenido de los resultados (depende de qué haya en el buzón al
+# momento de correr el test) — solo que la conexión y la búsqueda se
+# ejecutan sin error.
+#
+# IMPORTANTE: a diferencia del comportamiento por defecto de
+# ImapReceiverStrategy (search.markAsSeen: true), acá se fuerza
+# `markAsSeen: false` explícitamente — este test no debe modificar el
+# buzón real de nadie. Mismo criterio ya usado en el test de integración
+# real de libredte-lib-core
+# (ExchangeDocumentReceiveEmailTest::testReceiveOneDocumentInOneEnvelope()).
+# También se acorta la ventana de búsqueda a 1 día (en vez de los 7 por
+# defecto) para reducir la cantidad de correos que la estrategia procesa.
+description: >
+  Se conecta de verdad por IMAP a la cuenta configurada en env-tests, sin
+  marcar correos como leídos.
+
+request:
+  package: billing
+  component: exchange
+  worker: receiver
+  operation: receive
+  parameters:
+    bag:
+      options:
+        strategy: email.imap
+        transport:
+          username: "{{mailUsername}}"
+          password: "{{mailPassword}}"
+          search:
+            daysAgo: 1
+            markAsSeen: false
+
+expect:
+  success: {}

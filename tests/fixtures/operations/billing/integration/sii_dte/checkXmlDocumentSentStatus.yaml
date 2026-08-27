@@ -1,0 +1,51 @@
+# billing.integration.sii_dte::checkXmlDocumentSentStatus
+#
+# Consulta el estado de un envío ya hecho al SII, identificado por su
+# `trackId`. Como este fixture no encadena con un envío real previo, usa un
+# `trackId` inventado. Sin certificado real (CertificateFaker), falla en la
+# autenticación (failure). Con certificado real, la autenticación tiene
+# éxito y el SII responde con éxito (success) indicando que el trackId es
+# desconocido — se deja como `either` por si algún día se completa con un
+# `trackId` real.
+description: >
+  Consulta el estado de envío de un trackId inventado.
+
+request:
+  package: billing
+  component: integration
+  worker: sii_dte
+  operation: checkXmlDocumentSentStatus
+  parameters:
+    request:
+      certificate: "{{siiCertificateRequest}}"
+      options:
+        environment: 1 # SiiEnvironment::STAGING (certificación).
+    trackId: 999999999
+    company: "{{siiCompanyRut}}"
+
+expect:
+  either:
+    success:
+      value_contains:
+        # El trackId 999999999 nunca existirá realmente, así que el SII
+        # siempre debería reportar error y ningún documento procesado —
+        # hechos estructurales del dato inventado, no del entorno del SII
+        # en un momento dado.
+        error: true
+        resume.reported: 0
+        resume.accepted: 0
+        resume.rejected: 0
+        resume.repairs: 0
+        # status/description sí dependen del código puntual que el SII
+        # elija para "trackId desconocido" — solo se exige que la
+        # respuesta real haya llegado con contenido.
+        status: '*'
+        description: '*'
+    failure:
+      problem_title:
+        # Con CertificateFaker (sin LIBREDTE_CERTIFICATE_FILE configurado) siempre
+        # falla acá: el certificado autofirmado nunca está registrado en el SII.
+        - libredte\lib\Core\Package\Billing\Component\Integration\Exception\SiiLazy\AuthenticateException
+        # Con un certificado real configurado, la autenticación puede tener éxito
+        # y fallar más adelante, en la operación específica.
+        - libredte\lib\Core\Package\Billing\Component\Integration\Exception\SiiDte\CheckXmlDocumentSentStatusException

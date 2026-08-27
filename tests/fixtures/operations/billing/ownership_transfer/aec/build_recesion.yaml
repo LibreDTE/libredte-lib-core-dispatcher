@@ -1,0 +1,41 @@
+# billing.ownership_transfer.aec::build (re-cesión)
+#
+# Mismo `AecBagDeserializer` que build.yaml, pero `source` es un AEC ya
+# construido (etiqueta raíz `AEC`, no `DTE`) — ejercita la otra rama del
+# deserializer: `new Aec($xmlDocument)` en vez de pasar por
+# `DocumentBagManagerWorkerInterface::create()`. Mismo operation que
+# build.yaml (`aec::build`), archivo separado para cubrir ambas ramas del
+# discriminador explícitamente.
+description: >
+  Construye una segunda cesión sobre un AEC ya construido.
+
+request:
+  package: billing
+  component: ownership_transfer
+  worker: aec
+  operation: build
+  parameters:
+    bag:
+      source: "{{aecXml}}"
+      cedente:
+        RUT: '66666666-6'
+        RazonSocial: Cliente de Prueba
+        Direccion: Direccion 456
+        eMail: cliente@example.com
+        RUTAutorizado:
+          RUT: '66666666-6'
+          Nombre: Cliente de Prueba
+      cesionario:
+        RUT: '12345678-2'
+        RazonSocial: Segundo Cesionario SpA
+        Direccion: Direccion 789
+        eMail: segundo@example.com
+      cesion:
+        MontoCesion: 119000
+        UltimoVencimiento: '2024-03-14'
+      certificate: "{{certificate}}"
+
+expect:
+  success:
+    value_contains:
+      AEC.DocumentoAEC.Caratula.RutCedente: '66666666-6'

@@ -1,0 +1,19 @@
+# billing.document.dispatcher::validateSchema
+#
+# Mismo criterio que validate.yaml para `source`. Valida el sobre (EnvioDTE)
+# contra su esquema XSD y retorna el XML validado.
+description: >
+  Valida el esquema XML de un sobre de envío (EnvioDTE) ya construido.
+
+request:
+  package: billing
+  component: document
+  worker: dispatcher
+  operation: validateSchema
+  parameters:
+    source: "{{sobreEnvioXml}}"
+
+expect:
+  success:
+    value_contains:
+      EnvioDTE.SetDTE.Caratula.RutEmisor: '76192083-9'

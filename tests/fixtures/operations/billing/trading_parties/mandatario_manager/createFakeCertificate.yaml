@@ -1,0 +1,23 @@
+# billing.trading_parties.mandatario_manager::createFakeCertificate
+#
+# Genera un certificado ficticio para un mandatario dado.
+description: >
+  Genera un certificado falso para un mandatario de prueba.
+
+request:
+  package: billing
+  component: trading_parties
+  worker: mandatario_manager
+  operation: createFakeCertificate
+  parameters:
+    mandatario:
+      run: '76192083-9'
+      nombre: SASCO SpA
+      email: contacto@example.com
+
+expect:
+  success:
+    value_contains:
+      name: SASCO SpA
+      email: contacto@example.com
+      isActive: true

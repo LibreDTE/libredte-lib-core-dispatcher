@@ -1,0 +1,37 @@
+# billing.exchange.document_response::buildRespuestaEnvio
+#
+# Construye una respuesta a nivel de cada DTE (resultado_dte), el caso más
+# simple de las dos formas que acepta `data` (la otra es
+# `recepcion_envio`, a nivel de sobre completo).
+description: >
+  Construye una RespuestaDTE con el resultado de un DTE.
+
+request:
+  package: billing
+  component: exchange
+  worker: document_response
+  operation: buildRespuestaEnvio
+  parameters:
+    bag:
+      tipo: respuesta_envio
+      caratula:
+        RutResponde: '76192083-9'
+        RutRecibe: '88888888-8'
+        IdRespuesta: 1
+      data:
+        resultado_dte:
+          - TipoDTE: 33
+            Folio: 1
+            FchEmis: '2024-01-15'
+            RUTEmisor: '88888888-8'
+            RUTRecep: '76192083-9'
+            MntTotal: 100000
+            CodEnvio: 1
+            EstadoDTE: 0
+            EstadoDTEGlosa: ACEPTADO OK
+      certificate: "{{certificate}}"
+
+expect:
+  success:
+    value_contains:
+      RespuestaDTE.Resultado: '*'

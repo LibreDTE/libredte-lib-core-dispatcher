@@ -1,0 +1,20 @@
+# billing.document.validator::validate
+#
+# `source` es una unión `DocumentBagInterface|XmlDocumentInterface|string`.
+# Se pasa el XML del DTE como string (no envuelto en array) para que la
+# resolución de unión lo resuelva a `XmlDocumentInterface` — el propio
+# método internamente lo vuelve a envolver en una bolsa normalizada vía
+# `DocumentBagManagerWorker::create()`. No retorna valor (void).
+description: >
+  Valida los datos de una factura afecta ya construida.
+
+request:
+  package: billing
+  component: document
+  worker: validator
+  operation: validate
+  parameters:
+    source: "{{facturaAfectaXml}}"
+
+expect:
+  success: {}

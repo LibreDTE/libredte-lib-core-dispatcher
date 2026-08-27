@@ -32,10 +32,13 @@ use libredte\lib\Core\Package\Billing\Component\Document\Exception\DocumentExcep
 use libredte\lib\Core\Package\Billing\Component\Identifier\Contract\CafFakerWorkerInterface;
 use libredte\lib\Core\Package\Billing\Component\TradingParties\Entity\Emisor;
 use libredte\lib\CoreDispatcher\Bootstrap;
+use libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Book\BookBagDeserializer;
 use libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Document\DocumentBagDeserializer;
 use libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Document\DocumentEnvelopeDeserializer;
+use libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Exchange\ExchangeDocumentBagDeserializer;
 use libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Identifier\CafDeserializer;
 use libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Integration\SiiRequestDeserializer;
+use libredte\lib\CoreDispatcher\Service\Deserializer\Billing\OwnershipTransfer\AecBagDeserializer;
 use libredte\lib\CoreDispatcher\Service\Deserializer\Billing\TradingParties\EmisorDeserializer;
 use libredte\lib\CoreDispatcher\Service\Deserializer\Billing\TradingParties\MandatarioDeserializer;
 use libredte\lib\CoreDispatcher\Service\Deserializer\Billing\TradingParties\ReceptorDeserializer;
@@ -58,11 +61,14 @@ use PHPUnit\Framework\TestCase;
  * despache.
  */
 #[CoversClass(Bootstrap::class)]
+#[UsesClass(AecBagDeserializer::class)]
+#[UsesClass(BookBagDeserializer::class)]
 #[UsesClass(CafDeserializer::class)]
 #[UsesClass(CertificateDeserializer::class)]
 #[UsesClass(DocumentBagDeserializer::class)]
 #[UsesClass(DocumentEnvelopeDeserializer::class)]
 #[UsesClass(EmisorDeserializer::class)]
+#[UsesClass(ExchangeDocumentBagDeserializer::class)]
 #[UsesClass(MandatarioDeserializer::class)]
 #[UsesClass(ReceptorDeserializer::class)]
 #[UsesClass(SiiRequestDeserializer::class)]

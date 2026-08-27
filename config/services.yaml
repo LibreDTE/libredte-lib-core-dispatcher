@@ -37,10 +37,14 @@ services:
     # configuración adicional, incluso cuando algunas son servicios privados,
     # porque el autowiring funciona en todo el grafo compilado sin importar
     # visibilidad.
+    libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Book\BookBagDeserializer: ~
     libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Document\DocumentBagDeserializer: ~
     libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Document\DocumentEnvelopeDeserializer: ~
+    libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Exchange\ExchangeBagDeserializer: ~
+    libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Exchange\ExchangeDocumentBagDeserializer: ~
     libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Identifier\CafDeserializer: ~
     libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Integration\SiiRequestDeserializer: ~
+    libredte\lib\CoreDispatcher\Service\Deserializer\Billing\OwnershipTransfer\AecBagDeserializer: ~
     libredte\lib\CoreDispatcher\Service\Deserializer\Billing\TradingParties\EmisorDeserializer: ~
     libredte\lib\CoreDispatcher\Service\Deserializer\Billing\TradingParties\MandatarioDeserializer: ~
     libredte\lib\CoreDispatcher\Service\Deserializer\Billing\TradingParties\ReceptorDeserializer: ~
@@ -60,10 +64,14 @@ services:
         lazy: true
         arguments:
             $deserializers:
+                libredte\lib\Core\Package\Billing\Component\Book\Contract\BookBagInterface: '@libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Book\BookBagDeserializer'
                 libredte\lib\Core\Package\Billing\Component\Document\Contract\DocumentBagInterface: '@libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Document\DocumentBagDeserializer'
                 libredte\lib\Core\Package\Billing\Component\Document\Contract\DocumentEnvelopeInterface: '@libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Document\DocumentEnvelopeDeserializer'
+                libredte\lib\Core\Package\Billing\Component\Exchange\Contract\ExchangeBagInterface: '@libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Exchange\ExchangeBagDeserializer'
+                libredte\lib\Core\Package\Billing\Component\Exchange\Support\ExchangeDocumentBag: '@libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Exchange\ExchangeDocumentBagDeserializer'
                 libredte\lib\Core\Package\Billing\Component\Identifier\Contract\CafInterface: '@libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Identifier\CafDeserializer'
                 libredte\lib\Core\Package\Billing\Component\Integration\Contract\SiiRequestInterface: '@libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Integration\SiiRequestDeserializer'
+                libredte\lib\Core\Package\Billing\Component\OwnershipTransfer\Support\AecBag: '@libredte\lib\CoreDispatcher\Service\Deserializer\Billing\OwnershipTransfer\AecBagDeserializer'
                 libredte\lib\Core\Package\Billing\Component\TradingParties\Contract\EmisorInterface: '@libredte\lib\CoreDispatcher\Service\Deserializer\Billing\TradingParties\EmisorDeserializer'
                 libredte\lib\Core\Package\Billing\Component\TradingParties\Contract\MandatarioInterface: '@libredte\lib\CoreDispatcher\Service\Deserializer\Billing\TradingParties\MandatarioDeserializer'
                 libredte\lib\Core\Package\Billing\Component\TradingParties\Contract\ReceptorInterface: '@libredte\lib\CoreDispatcher\Service\Deserializer\Billing\TradingParties\ReceptorDeserializer'
@@ -86,16 +94,14 @@ services:
     Derafu\BackboneDispatcher\Contract\SerializerInterface:
         alias: Derafu\BackboneDispatcher\Service\Serialization\Serializer
 
-    # TODO: descomentar una vez que todas las operaciones reales que este
-    # bridge expone estén marcadas con #[Operation] en libredte-lib-core
-    # (confirmado hoy: billing.identifier.caf_loader::load no lo está, y
-    # bloquea el dispatch real si esta política queda activa). Sin esto,
-    # DirectDispatcher usa su default (AllowAllOperationPolicy), que expone
-    # cualquier método público de cualquier worker, incluyendo los que
-    # aportan traits como JobsAwareTrait/HandlersAwareTrait/OptionsAwareTrait.
-    # Derafu\BackboneDispatcher\Service\Policy\TaggedOperationPolicy: ~
-    # Derafu\BackboneDispatcher\Contract\OperationPolicyInterface:
-    #     alias: Derafu\BackboneDispatcher\Service\Policy\TaggedOperationPolicy
+    # Solo despacha métodos marcados con #[Operation] en libredte-lib-core —
+    # sin esto, DirectDispatcher usa su default (AllowAllOperationPolicy),
+    # que expone cualquier método público de cualquier worker, incluyendo
+    # los que aportan traits como
+    # JobsAwareTrait/HandlersAwareTrait/OptionsAwareTrait.
+    Derafu\BackboneDispatcher\Service\Policy\TaggedOperationPolicy: ~
+    Derafu\BackboneDispatcher\Contract\OperationPolicyInterface:
+        alias: Derafu\BackboneDispatcher\Service\Policy\TaggedOperationPolicy
 
     Derafu\BackboneDispatcher\Contract\DirectDispatcherInterface:
         class: Derafu\BackboneDispatcher\Service\Dispatch\DirectDispatcher

@@ -1,0 +1,20 @@
+# billing.book.validator::validateSchema
+#
+# `source` es una unión `BookBagInterface|XmlDocumentInterface|string`. Se
+# pasa el XML del libro como string plano para que resuelva a
+# `XmlDocumentInterface`.
+description: >
+  Valida el esquema XML de un libro de ventas ya construido.
+
+request:
+  package: billing
+  component: book
+  worker: validator
+  operation: validateSchema
+  parameters:
+    source: "{{libroVentaXml}}"
+
+expect:
+  success:
+    value_contains:
+      LibroCompraVenta.EnvioLibro.Caratula.TipoOperacion: VENTA

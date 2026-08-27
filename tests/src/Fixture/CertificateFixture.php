@@ -32,17 +32,30 @@ namespace libredte\lib\TestsCoreDispatcher\Fixture;
 final class CertificateFixture
 {
     /**
+     * @param string $rut RUT a incrustar en el atributo `serialNumber` del
+     * subject del certificado — así `Derafu\Certificate\Certificate::getId()`
+     * (que lo lee de ahí) funciona igual que con un certificado chileno
+     * real, sin necesitar uno de verdad.
+     * @param string $email Correo a incrustar en el atributo `emailAddress`
+     * del subject — leído por `Certificate::getEmail()`.
      * @return array{certificate: string, privateKey: string}
      */
-    public static function generate(): array
-    {
+    public static function generate(
+        string $rut = '76192083-9',
+        string $email = 'contacto@example.com',
+    ): array {
         $privateKey = openssl_pkey_new([
             'private_key_bits' => 2048,
             'private_key_type' => OPENSSL_KEYTYPE_RSA,
         ]);
 
         $csr = openssl_csr_new(
-            ['commonName' => 'LibreDTE Dispatcher Test', 'countryName' => 'CL'],
+            [
+                'commonName' => 'LibreDTE Dispatcher Test',
+                'countryName' => 'CL',
+                'serialNumber' => $rut,
+                'emailAddress' => $email,
+            ],
             $privateKey,
             ['digest_alg' => 'sha256'],
         );

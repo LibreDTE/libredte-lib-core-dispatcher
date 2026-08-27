@@ -1,0 +1,20 @@
+# billing.document.loader::loadXml
+#
+# Carga un DTE completo (normalizado, timbrado y firmado) desde su XML y
+# entrega la bolsa (`DocumentBagInterface`) totalmente normalizada. Caso de
+# uso externo típico: recibir un DTE ya emitido y trabajar con sus datos.
+description: >
+  Carga una factura afecta ya construida como XML y la normaliza por completo.
+
+request:
+  package: billing
+  component: document
+  worker: loader
+  operation: loadXml
+  parameters:
+    xml: "{{facturaAfectaXml}}"
+
+expect:
+  success:
+    value_contains:
+      document_type.codigo: 33

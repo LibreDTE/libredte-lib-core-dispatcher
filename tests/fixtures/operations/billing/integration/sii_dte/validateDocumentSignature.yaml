@@ -1,0 +1,52 @@
+# billing.integration.sii_dte::validateDocumentSignature
+#
+# Igual que validateDocument, pero además valida la firma de un timbre
+# electrónico (TED). Con datos y firma inventados: sin certificado real
+# (CertificateFaker), falla en la autenticación (failure). Con certificado
+# real, la autenticación tiene éxito y el SII responde con éxito (success)
+# indicando por qué el documento no es válido (folio/empresa no
+# corresponde a ningún documento real).
+description: >
+  Valida un documento y firma inventados contra el SII.
+
+request:
+  package: billing
+  component: integration
+  worker: sii_dte
+  operation: validateDocumentSignature
+  parameters:
+    request:
+      certificate: "{{siiCertificateRequest}}"
+      options:
+        environment: 1 # SiiEnvironment::STAGING (certificación).
+    company: "{{siiCompanyRut}}"
+    document: 33
+    number: 999999999
+    date: '2025-01-01'
+    total: 1000
+    recipient: '23456789-6'
+    signature: ''
+
+expect:
+  either:
+    success:
+      value_contains:
+        # El folio 999999999 nunca existirá realmente, así que "received"
+        # siempre debería ser false — es un hecho estructural del dato
+        # inventado, no del entorno del SII en un momento dado.
+        received: false
+        # status/description sí dependen de la respuesta puntual del SII
+        # (ej. "FNA" folio no autorizado, o "EMP" empresa no autorizada,
+        # según el estado de la cuenta/certificado usado) — solo se exige
+        # que la respuesta real haya llegado con contenido, sin fijar el
+        # código exacto.
+        status: '*'
+        description: '*'
+    failure:
+      problem_title:
+        # Con CertificateFaker (sin LIBREDTE_CERTIFICATE_FILE configurado) siempre
+        # falla acá: el certificado autofirmado nunca está registrado en el SII.
+        - libredte\lib\Core\Package\Billing\Component\Integration\Exception\SiiLazy\AuthenticateException
+        # Con un certificado real configurado, la autenticación puede tener éxito
+        # y fallar más adelante, en la operación específica.
+        - libredte\lib\Core\Package\Billing\Component\Integration\Exception\SiiDte\ValidateDocumentSignatureException

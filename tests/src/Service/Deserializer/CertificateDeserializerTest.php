@@ -24,6 +24,7 @@ declare(strict_types=1);
 
 namespace libredte\lib\TestsCoreDispatcher\Service\Deserializer;
 
+use Derafu\BackboneDispatcher\Exception\UnsupportedDataTypeException;
 use Derafu\Certificate\Contract\CertificateInterface;
 use Derafu\Certificate\Service\CertificateLoader;
 use InvalidArgumentException;
@@ -77,7 +78,7 @@ class CertificateDeserializerTest extends TestCase
 
     public function testRejectsNonArrayData(): void
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(UnsupportedDataTypeException::class);
 
         $this->deserializer->deserialize('not-an-array', CertificateInterface::class);
     }

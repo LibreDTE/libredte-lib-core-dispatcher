@@ -24,7 +24,7 @@ declare(strict_types=1);
 
 namespace libredte\lib\TestsCoreDispatcher\Service\Deserializer\Billing\Identifier;
 
-use InvalidArgumentException;
+use Derafu\BackboneDispatcher\Exception\UnsupportedDataTypeException;
 use libredte\lib\Core\Application;
 use libredte\lib\Core\Package\Billing\Component\Identifier\Contract\CafFakerWorkerInterface;
 use libredte\lib\Core\Package\Billing\Component\Identifier\Contract\CafInterface;
@@ -85,7 +85,7 @@ class CafDeserializerTest extends TestCase
 
     public function testRejectsNonStringData(): void
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(UnsupportedDataTypeException::class);
 
         $this->deserializer->deserialize(['not' => 'a string'], CafInterface::class);
     }

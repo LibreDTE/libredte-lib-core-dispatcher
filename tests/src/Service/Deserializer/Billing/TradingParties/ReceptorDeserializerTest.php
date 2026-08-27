@@ -24,7 +24,7 @@ declare(strict_types=1);
 
 namespace libredte\lib\TestsCoreDispatcher\Service\Deserializer\Billing\TradingParties;
 
-use InvalidArgumentException;
+use Derafu\BackboneDispatcher\Exception\UnsupportedDataTypeException;
 use libredte\lib\Core\Package\Billing\Component\TradingParties\Contract\ReceptorInterface;
 use libredte\lib\Core\Package\Billing\Component\TradingParties\Factory\ReceptorFactory;
 use libredte\lib\CoreDispatcher\Service\Deserializer\Billing\TradingParties\ReceptorDeserializer;
@@ -54,7 +54,7 @@ class ReceptorDeserializerTest extends TestCase
 
     public function testRejectsNonArrayData(): void
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(UnsupportedDataTypeException::class);
 
         $this->deserializer->deserialize('not-an-array', ReceptorInterface::class);
     }

@@ -1,0 +1,18 @@
+# billing.ownership_transfer.aec::validateSignature
+#
+# Mismo criterio que validateSchema.yaml para `source`. Retorna un arreglo
+# de resultados de `derafu/signature` (objetos, no arreglos escalares) —
+# solo se verifica éxito del despacho.
+description: >
+  Valida la firma XML de un AEC ya construido.
+
+request:
+  package: billing
+  component: ownership_transfer
+  worker: aec
+  operation: validateSignature
+  parameters:
+    source: "{{aecXml}}"
+
+expect:
+  success: {}

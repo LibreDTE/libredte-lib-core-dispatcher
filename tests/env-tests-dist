@@ -1,0 +1,34 @@
+#
+# Definición de variables de entorno para los tests de este proyecto.
+#
+# Para configurar se debe renombrar este archivo a env-tests con:
+#   $ mv env-tests-dist env-tests
+#
+# Las variables se deben cargar antes de ejecutar los tests ejecutando:
+#   $ source tests/env-tests
+#
+# Sin esto, los fixtures de billing/integration/** (sii_dte/sii_rtc/sii_rcv)
+# igual corren — usan un certificado autofirmado de prueba (CertificateFaker)
+# que el SII rechaza siempre. Configurando esto se puede además ejercitar el
+# camino de éxito real contra el SII de certificación.
+#
+# Sin MAIL_USERNAME/MAIL_PASSWORD, los fixtures de
+# billing/exchange/sender::send.yaml y billing/exchange/receiver::receive.yaml
+# igual corren (credenciales vacías, fallan localmente sin red). Los fixtures
+# *_real.yaml (send_real.yaml/receive_real.yaml) SÍ requieren esto — sin
+# configurar, se saltan (no hay un ambiente de prueba equivalente al de
+# certificación del SII para SMTP/IMAP: el host por defecto es Gmail real,
+# así que a diferencia del certificado no se usa un valor falso como
+# respaldo). Con esto configurado, `send_real.yaml` envía un correo real a
+# la misma cuenta (se manda a sí misma) y `receive_real.yaml` se conecta por
+# IMAP de verdad a esa cuenta — puede marcar mensajes como leídos si hay
+# correos nuevos que calcen con el filtro de búsqueda.
+#
+
+# Certificado digital.
+export LIBREDTE_CERTIFICATE_FILE=""
+export LIBREDTE_CERTIFICATE_PASS=""
+
+# Cuenta de correo (SMTP/IMAP) para los fixtures *_real.yaml de Exchange.
+export MAIL_USERNAME=""
+export MAIL_PASSWORD=""

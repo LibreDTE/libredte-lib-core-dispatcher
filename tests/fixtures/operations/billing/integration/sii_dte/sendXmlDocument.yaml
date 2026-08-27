@@ -1,0 +1,41 @@
+# billing.integration.sii_dte::sendXmlDocument
+#
+# Envía un DTE al SII (ambiente de certificación/staging). Usa el
+# certificado real (LIBREDTE_CERTIFICATE_FILE/LIBREDTE_CERTIFICATE_PASS, ver
+# tests/env-tests-dist) si está configurado; si no, `FixtureContext` cae a
+# uno autofirmado (nunca se salta, ver `problem_title` abajo).
+#
+# El DTE que se envía está timbrado con un CAF generado en tiempo de test
+# (fake, no uno real solicitado al SII), así que lo más probable en la
+# práctica es que el SII lo rechace (folio no autorizado) — por eso se usa
+# `either`: nos interesa comprobar que el despacho llega hasta el SII real y
+# que, gane o pierda, el resultado tiene la forma esperada.
+description: >
+  Envía una factura afecta real y fresca al SII de certificación.
+
+request:
+  package: billing
+  component: integration
+  worker: sii_dte
+  operation: sendXmlDocument
+  parameters:
+    request:
+      certificate: "{{siiCertificateRequest}}"
+      options:
+        environment: 1 # SiiEnvironment::STAGING (certificación).
+    doc: "{{siiFacturaAfectaXml}}"
+    company: "{{siiCompanyRut}}"
+
+expect:
+  either:
+    success:
+      value_contains:
+        track_id: '*'
+    failure:
+      problem_title:
+        # Con CertificateFaker (sin LIBREDTE_CERTIFICATE_FILE configurado) siempre
+        # falla acá: el certificado autofirmado nunca está registrado en el SII.
+        - libredte\lib\Core\Package\Billing\Component\Integration\Exception\SiiLazy\AuthenticateException
+        # Con un certificado real configurado, la autenticación puede tener éxito
+        # y fallar más adelante, en la operación específica.
+        - libredte\lib\Core\Package\Billing\Component\Integration\Exception\SiiDte\SendXmlDocumentException

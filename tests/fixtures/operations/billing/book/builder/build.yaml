@@ -1,0 +1,39 @@
+# billing.book.builder::build
+#
+# Construye un libro de ventas (mensual) a partir de un detalle mínimo. La
+# carátula incluye `RutEmisorLibro` explícito — sin él, la construcción
+# revienta (ver corrección del `#[Operation]` de este método, motivada
+# exactamente por este fixture, en libredte-lib-core/CLAUDE.md).
+description: >
+  Construye un libro de ventas con un documento afecto.
+
+request:
+  package: billing
+  component: book
+  worker: builder
+  operation: build
+  parameters:
+    bag:
+      tipo: libro_ventas
+      caratula:
+        RutEmisorLibro: '76192083-9'
+        PeriodoTributario: '2024-01'
+      detalle:
+        - TpoDoc: 33
+          NroDoc: 1
+          TasaImp: 19
+          FchDoc: '2024-01-10'
+          RUTDoc: '66666666-6'
+          RznSoc: Cliente de Prueba
+          MntNeto: 100000
+          MntIVA: 19000
+          MntTotal: 119000
+      certificate: "{{certificate}}"
+      emisor:
+        rut: '76192083-9'
+        razon_social: SASCO SpA
+
+expect:
+  success:
+    value_contains:
+      LibroCompraVenta.EnvioLibro.Caratula.TipoOperacion: VENTA

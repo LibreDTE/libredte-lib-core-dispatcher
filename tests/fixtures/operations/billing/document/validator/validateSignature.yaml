@@ -1,0 +1,19 @@
+# billing.document.validator::validateSignature
+#
+# Mismo criterio que validate.yaml para `source`. Retorna un
+# `SignatureValidationResultInterface` (objeto de `derafu/signature`, no un
+# arreglo) — como con `document/renderer/render.yaml`, solo se verifica
+# éxito del despacho, no contenido.
+description: >
+  Valida la firma XML de una factura afecta ya construida.
+
+request:
+  package: billing
+  component: document
+  worker: validator
+  operation: validateSignature
+  parameters:
+    source: "{{facturaAfectaXml}}"
+
+expect:
+  success: {}

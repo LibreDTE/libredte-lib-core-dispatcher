@@ -1,0 +1,27 @@
+# billing.identifier.caf_faker::create
+#
+# Genera un CAF (Código de Autorización de Folios) ficticio para el emisor
+# de prueba, para folios de una factura afecta (código de documento 33).
+description: >
+  Recibe el emisor de prueba (deserializado vía EmisorFactory, sin XML de
+  entrada) y genera/retorna la entidad CAF falsa resultante.
+
+request:
+  package: billing
+  component: identifier
+  worker: caf_faker
+  operation: create
+  parameters:
+    emisor:
+      rut: '76192083-9'
+      razon_social: SASCO SpA
+    codigoDocumento: 33
+    folioDesde: 1
+    folioHasta: 100
+
+expect:
+  success:
+    value_contains:
+      tipoDocumento: 33
+      folioDesde: 1
+      folioHasta: 100

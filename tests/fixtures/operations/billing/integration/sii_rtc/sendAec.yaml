@@ -1,0 +1,36 @@
+# billing.integration.sii_rtc::sendAec
+#
+# Envía un AEC (Archivo Electrónico de Cesión) real al SII. El AEC cede un
+# DTE timbrado con un CAF fake (no uno real solicitado al SII), así que lo
+# más probable en la práctica es que el SII lo rechace — se usa `either`
+# por la misma razón que sendXmlDocument.yaml.
+description: >
+  Envía un AEC de primera cesión, real y fresco, al SII de certificación.
+
+request:
+  package: billing
+  component: integration
+  worker: sii_rtc
+  operation: sendAec
+  parameters:
+    request:
+      certificate: "{{siiCertificateRequest}}"
+      options:
+        environment: 1 # SiiEnvironment::STAGING (certificación).
+    doc: "{{siiAecXml}}"
+    company: "{{siiCompanyRut}}"
+    emailNotif: cedente@example.com
+
+expect:
+  either:
+    success:
+      value_contains:
+        track_id: '*'
+    failure:
+      problem_title:
+        # Con CertificateFaker (sin LIBREDTE_CERTIFICATE_FILE configurado) siempre
+        # falla acá: el certificado autofirmado nunca está registrado en el SII.
+        - libredte\lib\Core\Package\Billing\Component\Integration\Exception\SiiLazy\AuthenticateException
+        # Con un certificado real configurado, la autenticación puede tener éxito
+        # y fallar más adelante, en la operación específica.
+        - libredte\lib\Core\Package\Billing\Component\Integration\Exception\SiiRtc\SendAecException

@@ -1,0 +1,18 @@
+# billing.exchange.document_response::validateSignature
+#
+# Mismo criterio que validateSchema.yaml para `source`. Retorna un arreglo
+# de resultados de `derafu/signature` (objetos, no arreglos escalares) —
+# solo se verifica éxito del despacho.
+description: >
+  Valida la firma XML de un EnvioRecibos ya construido.
+
+request:
+  package: billing
+  component: exchange
+  worker: document_response
+  operation: validateSignature
+  parameters:
+    source: "{{envioRecibosXml}}"
+
+expect:
+  success: {}

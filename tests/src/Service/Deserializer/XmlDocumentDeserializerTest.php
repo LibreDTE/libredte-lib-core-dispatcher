@@ -24,8 +24,8 @@ declare(strict_types=1);
 
 namespace libredte\lib\TestsCoreDispatcher\Service\Deserializer;
 
+use Derafu\BackboneDispatcher\Exception\UnsupportedDataTypeException;
 use Derafu\Xml\XmlDocument;
-use InvalidArgumentException;
 use libredte\lib\CoreDispatcher\Service\Deserializer\XmlDocumentDeserializer;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -55,7 +55,7 @@ class XmlDocumentDeserializerTest extends TestCase
 
     public function testRejectsNonStringData(): void
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(UnsupportedDataTypeException::class);
 
         $this->deserializer->deserialize(['not' => 'a string'], XmlDocument::class);
     }

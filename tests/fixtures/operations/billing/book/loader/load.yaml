@@ -1,0 +1,38 @@
+# billing.book.loader::load
+#
+# Normaliza los datos crudos de un libro de ventas (mismo bag que
+# book/builder/build.yaml — comparten forma, ver nota en
+# libredte-lib-core/CLAUDE.md).
+description: >
+  Normaliza los datos de entrada de un libro de ventas.
+
+request:
+  package: billing
+  component: book
+  worker: loader
+  operation: load
+  parameters:
+    bag:
+      tipo: libro_ventas
+      caratula:
+        RutEmisorLibro: '76192083-9'
+        PeriodoTributario: '2024-01'
+      detalle:
+        - TpoDoc: 33
+          NroDoc: 1
+          TasaImp: 19
+          FchDoc: '2024-01-10'
+          RUTDoc: '66666666-6'
+          RznSoc: Cliente de Prueba
+          MntNeto: 100000
+          MntIVA: 19000
+          MntTotal: 119000
+      certificate: "{{certificate}}"
+      emisor:
+        rut: '76192083-9'
+        razon_social: SASCO SpA
+
+expect:
+  success:
+    value_contains:
+      book_type.codigo: libro_ventas

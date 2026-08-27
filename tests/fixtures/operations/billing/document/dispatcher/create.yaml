@@ -1,0 +1,30 @@
+# billing.document.dispatcher::create
+#
+# Crea un sobre (envelope) de envío a partir de una bolsa con un DTE ya
+# construido (xmlDocument), un certificado para firmar el sobre, y los
+# datos de autorización del emisor (necesarios para la carátula del sobre,
+# no vienen en el DTE mismo).
+description: >
+  Crea el sobre de envío para una factura afecta ya construida.
+
+request:
+  package: billing
+  component: document
+  worker: dispatcher
+  operation: create
+  parameters:
+    bag:
+      xmlDocument: "{{facturaAfectaXml}}"
+      certificate: "{{certificate}}"
+      emisor:
+        rut: '76192083-9'
+        razon_social: SASCO SpA
+        autorizacion_dte:
+          fecha_resolucion: '2014-08-22'
+          numero_resolucion: 80
+
+expect:
+  success:
+    value_contains:
+      tag: '*'
+      xml: '*'

@@ -1,0 +1,21 @@
+# billing.document.dispatcher::loadXml
+#
+# Carga un DTE suelto (no un sobre) como XML crudo y arma un sobre de envío
+# nuevo a partir de él, normalizándolo — caso de uso externo típico: recibir
+# un DTE de un tercero (no un EnvioDTE) y prepararlo para reenviar/procesar.
+description: >
+  Carga una factura afecta ya construida como XML y arma su sobre de envío.
+
+request:
+  package: billing
+  component: document
+  worker: dispatcher
+  operation: loadXml
+  parameters:
+    xml: "{{facturaAfectaXml}}"
+
+expect:
+  success:
+    value_contains:
+      tag: '*'
+      xml: '*'

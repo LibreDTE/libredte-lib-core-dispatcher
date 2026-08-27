@@ -1,0 +1,21 @@
+# billing.exchange.document_response::validateSchema
+#
+# `source` es una unión `AbstractExchangeDocument|XmlDocumentInterface|
+# string`. Se pasa el XML del EnvioRecibos como string plano para que
+# resuelva a `XmlDocumentInterface` — la propia operación detecta el
+# esquema correcto (EnvioRecibos_v10.xsd) a partir del tag raíz del XML.
+description: >
+  Valida el esquema XML de un EnvioRecibos ya construido.
+
+request:
+  package: billing
+  component: exchange
+  worker: document_response
+  operation: validateSchema
+  parameters:
+    source: "{{envioRecibosXml}}"
+
+expect:
+  success:
+    value_contains:
+      EnvioRecibos.SetRecibos.Caratula.RutResponde: '76192083-9'

@@ -1,0 +1,38 @@
+# billing.integration.sii_rcv::listDocumentEvents
+#
+# Lista los eventos (acuses, reclamos, etc.) registrados en el SII para un
+# documento. El folio es inventado. Sin certificado real (CertificateFaker),
+# falla en la autenticación (failure). Con certificado real, la
+# autenticación tiene éxito y el SII responde con éxito (success): un
+# arreglo vacío, pues el folio inventado no tiene eventos — por eso se usa
+# `value_equals` (el resultado completo es un arreglo simple, no un mapa
+# con claves sobre las que recorrer con `value_contains`).
+description: >
+  Lista los eventos de un documento inventado.
+
+request:
+  package: billing
+  component: integration
+  worker: sii_rcv
+  operation: listDocumentEvents
+  parameters:
+    request:
+      certificate: "{{siiCertificateRequest}}"
+      options:
+        environment: 1 # SiiEnvironment::STAGING (certificación).
+    company: "{{siiCompanyRut}}"
+    document: 33
+    number: 999999999
+
+expect:
+  either:
+    success:
+      value_equals: []
+    failure:
+      problem_title:
+        # Con CertificateFaker (sin LIBREDTE_CERTIFICATE_FILE configurado) siempre
+        # falla acá: el certificado autofirmado nunca está registrado en el SII.
+        - libredte\lib\Core\Package\Billing\Component\Integration\Exception\SiiLazy\AuthenticateException
+        # Con un certificado real configurado, la autenticación puede tener éxito
+        # y fallar más adelante, en la operación específica.
+        - libredte\lib\Core\Package\Billing\Component\Integration\Exception\SiiRcv\ListDocumentEventsException

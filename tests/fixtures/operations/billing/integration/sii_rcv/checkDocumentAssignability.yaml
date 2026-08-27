@@ -1,0 +1,35 @@
+# billing.integration.sii_rcv::checkDocumentAssignability
+#
+# Consulta si un documento es cedible (apto para ser cedido vía factoring).
+# Con un folio inventado se espera `failure` en la práctica.
+description: >
+  Consulta si un documento inventado es cedible.
+
+request:
+  package: billing
+  component: integration
+  worker: sii_rcv
+  operation: checkDocumentAssignability
+  parameters:
+    request:
+      certificate: "{{siiCertificateRequest}}"
+      options:
+        environment: 1 # SiiEnvironment::STAGING (certificación).
+    company: "{{siiCompanyRut}}"
+    document: 33
+    number: 999999999
+
+expect:
+  either:
+    success:
+      value_contains:
+        codigo: '*'
+        glosa: '*'
+    failure:
+      problem_title:
+        # Con CertificateFaker (sin LIBREDTE_CERTIFICATE_FILE configurado) siempre
+        # falla acá: el certificado autofirmado nunca está registrado en el SII.
+        - libredte\lib\Core\Package\Billing\Component\Integration\Exception\SiiLazy\AuthenticateException
+        # Con un certificado real configurado, la autenticación puede tener éxito
+        # y fallar más adelante, en la operación específica.
+        - libredte\lib\Core\Package\Billing\Component\Integration\Exception\SiiRcv\CheckDocumentAssignabilityException

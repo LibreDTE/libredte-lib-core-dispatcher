@@ -1,0 +1,23 @@
+# billing.document.renderer::render
+#
+# Renderiza un DTE ya construido a PDF. El valor de retorno es el binario
+# del PDF como string (no un array), así que este fixture solo verifica
+# éxito del despacho, no contenido — el renderizado real (plantillas,
+# generación del PDF) está fuera del alcance de esta suite de smoke tests.
+description: >
+  Renderiza una factura afecta ya construida a PDF.
+
+request:
+  package: billing
+  component: document
+  worker: renderer
+  operation: render
+  parameters:
+    bag:
+      xmlDocument: "{{facturaAfectaXml}}"
+      options:
+        renderer:
+          format: pdf
+
+expect:
+  success: {}

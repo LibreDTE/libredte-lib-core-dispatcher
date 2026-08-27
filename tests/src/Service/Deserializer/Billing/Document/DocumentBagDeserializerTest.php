@@ -24,12 +24,12 @@ declare(strict_types=1);
 
 namespace libredte\lib\TestsCoreDispatcher\Service\Deserializer\Billing\Document;
 
+use Derafu\BackboneDispatcher\Exception\UnsupportedDataTypeException;
 use Derafu\BackboneDispatcher\Service\Deserialization\FromArrayDeserializer;
 use Derafu\BackboneDispatcher\Service\Deserialization\ObjectFactoryRegistry;
 use Derafu\Certificate\Contract\CertificateInterface;
 use Derafu\Certificate\Service\CertificateLoader;
 use Derafu\Xml\Contract\XmlDocumentInterface;
-use InvalidArgumentException;
 use libredte\lib\Core\Application;
 use libredte\lib\Core\Package\Billing\Component\Document\Contract\DocumentBagInterface;
 use libredte\lib\Core\Package\Billing\Component\Identifier\Contract\CafFakerWorkerInterface;
@@ -119,7 +119,7 @@ class DocumentBagDeserializerTest extends TestCase
 
     public function testRejectsNonArrayData(): void
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(UnsupportedDataTypeException::class);
 
         $this->deserializer->deserialize('not-an-array', DocumentBagInterface::class);
     }

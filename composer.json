@@ -25,13 +25,15 @@
         "php": "^8.5",
         "derafu/backbone": "dev-main",
         "derafu/backbone-dispatcher": "dev-main",
-        "libredte/libredte-lib-core": "dev-master"
+        "libredte/libredte-lib-core": "dev-master",
+        "webklex/php-imap": "^6.2"
     },
     "require-dev": {
         "ext-xdebug": "*",
         "friendsofphp/php-cs-fixer": "^3.95",
         "phpstan/phpstan": "^2.2",
-        "phpunit/phpunit": "^13.2"
+        "phpunit/phpunit": "^13.2",
+        "symfony/yaml": "^7.4 || ^8.0"
     },
     "scripts": {
         "tests": "XDEBUG_MODE=coverage vendor/bin/phpunit --configuration=phpunit.xml",

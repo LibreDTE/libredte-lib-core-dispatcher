@@ -1,0 +1,21 @@
+# billing.document.dispatcher::validate
+#
+# `source` es una unión `DocumentEnvelopeInterface|XmlDocumentInterface|
+# string`. Se pasa el XML del sobre (EnvioDTE) como string plano para que
+# resuelva a `XmlDocumentInterface`. Hoy es un stub sin lógica propia (ver
+# TODO en `DispatcherWorker::validate()`), solo retorna el mismo XML.
+description: >
+  Valida un sobre de envío (EnvioDTE) ya construido.
+
+request:
+  package: billing
+  component: document
+  worker: dispatcher
+  operation: validate
+  parameters:
+    source: "{{sobreEnvioXml}}"
+
+expect:
+  success:
+    value_contains:
+      EnvioDTE.SetDTE.Caratula.RutEmisor: '76192083-9'

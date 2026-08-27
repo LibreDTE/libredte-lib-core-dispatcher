@@ -1,0 +1,22 @@
+# billing.identifier.caf_validator::validate
+#
+# Valida la firma y las llaves pública/privada de un CAF. El placeholder
+# {{cafFacturaAfecta}} genera un CAF fresco en tiempo de test (nunca se
+# commitea un CAF real a disco).
+description: >
+  Valida un CAF fresco (generado en el test) y retorna la misma entidad CAF
+  ya validada.
+
+request:
+  package: billing
+  component: identifier
+  worker: caf_validator
+  operation: validate
+  parameters:
+    caf: "{{cafFacturaAfecta}}"
+
+expect:
+  success:
+    value_contains:
+      tipoDocumento: 33
+      vigente: true

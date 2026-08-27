@@ -1,0 +1,20 @@
+# billing.document.validator::validateSchema
+#
+# Mismo criterio que validate.yaml: `source` como string plano para que
+# resuelva a `XmlDocumentInterface`. Retorna el XML del DTE ya validado
+# contra el esquema (arreglo con la estructura `DTE.Documento...`).
+description: >
+  Valida el esquema XML de una factura afecta ya construida.
+
+request:
+  package: billing
+  component: document
+  worker: validator
+  operation: validateSchema
+  parameters:
+    source: "{{facturaAfectaXml}}"
+
+expect:
+  success:
+    value_contains:
+      DTE.Documento.Encabezado.IdDoc.TipoDTE: '33'

@@ -1,0 +1,26 @@
+# billing.exchange.receiver::receive
+#
+# Recibe sobres pendientes con la estrategia configurada (por defecto
+# IMAP). Sin credenciales de transporte, la estrategia rechaza la solicitud
+# antes de intentar conectarse a ningún servidor — falla de forma
+# determinística y sin red, a diferencia de los fixtures de `Integration`
+# (que dependen de si hay o no un certificado real configurado).
+description: >
+  Intenta recibir sobres por IMAP sin credenciales de transporte.
+
+request:
+  package: billing
+  component: exchange
+  worker: receiver
+  operation: receive
+  parameters:
+    bag:
+      options:
+        strategy: email.imap
+        transport:
+          username: ''
+          password: ''
+
+expect:
+  failure:
+    problem_title: libredte\lib\Core\Package\Billing\Component\Exchange\Exception\ExchangeException
