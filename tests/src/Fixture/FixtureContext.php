@@ -105,6 +105,8 @@ final class FixtureContext
 
     private ?DocumentInterface $facturaAfectaDocument = null;
 
+    private ?DocumentInterface $boletaAfectaDocument = null;
+
     private ?CertificateInterface $siiCertificateObject = null;
 
     private bool $siiCertificateIsReal = false;
@@ -233,6 +235,75 @@ final class FixtureContext
         }
 
         return $this->facturaAfectaDocument;
+    }
+
+    /**
+     * Los datos crudos de una boleta afecta (39) mínima, para el emisor
+     * canónico — mismo propósito que `facturaAfectaParsedData()`, pero para
+     * un tipo de documento que NO admite acuse de recibo
+     * (`TipoDocumento::requiresAcuseRecibo()` es `false` para boletas), útil
+     * para probar que `renderer::render` omite en silencio una presentación
+     * `cedible` solicitada para este tipo de documento.
+     *
+     * @return array<string, mixed>
+     */
+    public function boletaAfectaParsedData(): array
+    {
+        return [
+            'Encabezado' => [
+                'IdDoc' => [
+                    'TipoDTE' => 39,
+                    'Folio' => 1,
+                ],
+                'Emisor' => [
+                    'RUTEmisor' => self::EMISOR_RUT,
+                    'RznSocEmisor' => self::EMISOR_RAZON_SOCIAL,
+                    'GiroEmisor' => 'Servicios',
+                    'DirOrigen' => 'Dirección 123',
+                    'CmnaOrigen' => 'Santiago',
+                ],
+                'Receptor' => [
+                    'RUTRecep' => self::GENERICO_RUT,
+                    'RznSocRecep' => self::GENERICO_RAZON_SOCIAL,
+                    'DirRecep' => 'Santiago',
+                    'CmnaRecep' => 'Santiago',
+                ],
+            ],
+            'Detalle' => [
+                [
+                    'NmbItem' => 'Producto de prueba',
+                    'QtyItem' => 1,
+                    'PrcItem' => 1190,
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Una boleta afecta (39) completa — construida, timbrada y firmada,
+     * mismo propósito que `facturaAfectaXml()` pero para un tipo de
+     * documento sin acuse de recibo.
+     *
+     * @return string XML del documento, codificado en base64.
+     */
+    public function boletaAfectaXml(): string
+    {
+        return base64_encode($this->freshBoletaAfectaDocument()->saveXml());
+    }
+
+    private function freshBoletaAfectaDocument(): DocumentInterface
+    {
+        if ($this->boletaAfectaDocument === null) {
+            $bag = new DocumentBag(
+                parsedData: $this->boletaAfectaParsedData(),
+                caf: $this->freshCaf(codigoDocumento: 39, folioDesde: 1, folioHasta: 100),
+                certificate: $this->certificateObject(),
+            );
+
+            $this->boletaAfectaDocument = $this->builderWorker()->build($bag);
+        }
+
+        return $this->boletaAfectaDocument;
     }
 
     /**

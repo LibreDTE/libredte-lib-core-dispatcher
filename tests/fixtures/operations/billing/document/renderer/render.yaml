@@ -1,11 +1,13 @@
 # billing.document.renderer::render
 #
-# Renderiza un DTE ya construido a PDF. El valor de retorno es el binario
-# del PDF como string (no un array), así que este fixture solo verifica
-# éxito del despacho, no contenido — el renderizado real (plantillas,
-# generación del PDF) está fuera del alcance de esta suite de smoke tests.
+# Renderiza un DTE ya construido a PDF. El valor de retorno ahora es un
+# `RenderResultInterface` serializado ({renderings: [...]}, contenido en
+# base64) — no el string binario crudo de antes. Sin la opción `renderings`,
+# se genera una sola presentación (`tributaria`), igual que el
+# comportamiento anterior a que existiera este concepto.
 description: >
-  Renderiza una factura afecta ya construida a PDF.
+  Renderiza una factura afecta ya construida a PDF, con una sola
+  presentación (la tributaria, por defecto).
 
 request:
   package: billing
@@ -20,4 +22,11 @@ request:
           format: pdf
 
 expect:
-  success: {}
+  success:
+    value_contains:
+      renderings.0.label: tributaria
+      renderings.0.mimeType: application/pdf
+      renderings.0.copies: 1
+      renderings.0.copyNumber: 1
+      renderings.0.content: '*'
+      renderings.0.filename: '*'

@@ -1,0 +1,31 @@
+# billing.document.renderer::render
+#
+# Pide explícitamente las dos presentaciones (tributaria y cedible) para un
+# tipo de documento que sí admite acuse de recibo (factura afecta) — deben
+# generarse ambas, cada una con su propio `label`/`filename`.
+description: >
+  Renderiza una factura afecta a PDF pidiendo copia tributaria y cedible en
+  la misma llamada.
+
+request:
+  package: billing
+  component: document
+  worker: renderer
+  operation: render
+  parameters:
+    bag:
+      xmlDocument: "{{facturaAfectaXml}}"
+      options:
+        renderer:
+          format: pdf
+          renderings:
+            tributaria: 1
+            cedible: 1
+
+expect:
+  success:
+    value_contains:
+      renderings.0.label: tributaria
+      renderings.0.content: '*'
+      renderings.1.label: cedible
+      renderings.1.content: '*'

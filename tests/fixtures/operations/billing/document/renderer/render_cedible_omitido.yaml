@@ -1,0 +1,30 @@
+# billing.document.renderer::render
+#
+# Pide tributaria y cedible para una boleta afecta (39): las boletas no
+# admiten acuse de recibo (`TipoDocumento::requiresAcuseRecibo()` es
+# `false`), así que la presentación `cedible` se omite en silencio — el
+# resultado solo debe traer la renderización tributaria, sin error.
+description: >
+  Renderiza una boleta afecta a PDF pidiendo copia tributaria y cedible: la
+  cedible se omite porque este tipo de documento no admite acuse de recibo.
+
+request:
+  package: billing
+  component: document
+  worker: renderer
+  operation: render
+  parameters:
+    bag:
+      xmlDocument: "{{boletaAfectaXml}}"
+      options:
+        renderer:
+          format: pdf
+          renderings:
+            tributaria: 1
+            cedible: 1
+
+expect:
+  success:
+    value_contains:
+      renderings.0.label: tributaria
+      renderings.0.content: '*'
