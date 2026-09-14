@@ -231,7 +231,7 @@ final class FixtureContext
                 certificate: $this->certificateObject(),
             );
 
-            $this->facturaAfectaDocument = $this->builderWorker()->build($bag);
+            $this->facturaAfectaDocument = $this->builderWorker()->build($bag)->getDocument();
         }
 
         return $this->facturaAfectaDocument;
@@ -300,7 +300,7 @@ final class FixtureContext
                 certificate: $this->certificateObject(),
             );
 
-            $this->boletaAfectaDocument = $this->builderWorker()->build($bag);
+            $this->boletaAfectaDocument = $this->builderWorker()->build($bag)->getDocument();
         }
 
         return $this->boletaAfectaDocument;
@@ -408,7 +408,7 @@ final class FixtureContext
                 emisor: new Emisor(self::EMISOR_RUT, self::EMISOR_RAZON_SOCIAL),
             );
 
-            $this->libroVenta = $this->bookBuilderWorker()->build($bag);
+            $this->libroVenta = $this->bookBuilderWorker()->build($bag)->getBook();
         }
 
         return $this->libroVenta;
@@ -493,7 +493,7 @@ final class FixtureContext
      */
     public function aecXml(): string
     {
-        return base64_encode($this->freshAec()->getXml());
+        return base64_encode($this->freshAec()->saveXml());
     }
 
     /**
@@ -530,7 +530,7 @@ final class FixtureContext
             certificate: $this->certificateObject(),
         ));
 
-        return base64_encode($aec->getXml());
+        return base64_encode($aec->saveXml());
     }
 
     private function freshAec(): Aec
@@ -689,7 +689,7 @@ final class FixtureContext
                 certificate: $certificate,
             ));
 
-            $this->siiAecXml = base64_encode($aec->getXml());
+            $this->siiAecXml = base64_encode($aec->saveXml());
         }
 
         return $this->siiAecXml;
@@ -829,7 +829,7 @@ final class FixtureContext
                 certificate: $certificate,
             );
 
-            $this->siiFacturaAfectaDocument = $this->builderWorker()->build($bag);
+            $this->siiFacturaAfectaDocument = $this->builderWorker()->build($bag)->getDocument();
         }
 
         return $this->siiFacturaAfectaDocument;

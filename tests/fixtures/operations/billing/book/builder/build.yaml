@@ -36,4 +36,4 @@ request:
 expect:
   success:
     value_contains:
-      LibroCompraVenta.EnvioLibro.Caratula.TipoOperacion: VENTA
+      book.LibroCompraVenta.EnvioLibro.Caratula.TipoOperacion: VENTA

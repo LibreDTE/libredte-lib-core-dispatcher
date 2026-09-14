@@ -23,4 +23,4 @@ request:
 expect:
   success:
     value_contains:
-      datos: '*'
+      document: '*'
