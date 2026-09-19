@@ -39,6 +39,14 @@ use libredte\lib\Core\Application;
  * cableado de forma declarativa en el `config/services.yaml` de este
  * paquete, de la misma forma en que `libredte-lib-core` cablea sus propios
  * servicios; esta clase solo le pide el resultado final al contenedor.
+ *
+ * `boot()` y `bootExplorer()` son el punto de entrada público de este
+ * paquete: cualquier consumidor externo los invoca por nombre —código PHP
+ * normal, un wrapper de API/consola, o un binding hacia otro lenguaje que
+ * los resuelve dinámicamente, sin chequeo de tipos en tiempo de
+ * compilación—. Su firma (nombre y orden de los parámetros posicionales)
+ * es parte del contrato público: cambiarla es un breaking change aunque
+ * PHP mismo no se queje.
  */
 final class Bootstrap
 {
