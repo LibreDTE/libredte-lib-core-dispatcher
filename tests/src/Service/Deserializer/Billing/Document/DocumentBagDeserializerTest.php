@@ -123,4 +123,58 @@ class DocumentBagDeserializerTest extends TestCase
 
         $this->deserializer->deserialize('not-an-array', DocumentBagInterface::class);
     }
+
+    public function testDecodesAStringInputDataFromBase64(): void
+    {
+        $xml = mb_convert_encoding(
+            '<?xml version="1.0" encoding="ISO-8859-1"?><DTE>Tecnología</DTE>',
+            'ISO-8859-1',
+            'UTF-8'
+        );
+
+        $bag = $this->deserializer->deserialize([
+            'inputData' => base64_encode($xml),
+        ], DocumentBagInterface::class);
+
+        $this->assertSame($xml, $bag->getInputData());
+    }
+
+    public function testKeepsAnArrayInputDataAsJson(): void
+    {
+        $data = ['Encabezado' => ['IdDoc' => ['TipoDTE' => 33]]];
+
+        $bag = $this->deserializer->deserialize([
+            'inputData' => $data,
+        ], DocumentBagInterface::class);
+
+        $this->assertSame(json_encode($data), $bag->getInputData());
+    }
+
+    public function testInputDataIsOptional(): void
+    {
+        $bag = $this->deserializer->deserialize([
+            'parsedData' => ['Encabezado' => []],
+        ], DocumentBagInterface::class);
+
+        $this->assertNull($bag->getInputData());
+    }
+
+    public function testRejectsAStringInputDataThatIsNotValidBase64(): void
+    {
+        $this->expectException(UnsupportedDataTypeException::class);
+        $this->expectExceptionMessage('requiere el campo inputData codificado en base64 válido');
+
+        $this->deserializer->deserialize([
+            'inputData' => '<?xml version="1.0"?><DTE/>',
+        ], DocumentBagInterface::class);
+    }
+
+    public function testRejectsAnInputDataThatIsNeitherAnArrayNorAString(): void
+    {
+        $this->expectException(UnsupportedDataTypeException::class);
+
+        $this->deserializer->deserialize([
+            'inputData' => 123,
+        ], DocumentBagInterface::class);
+    }
 }

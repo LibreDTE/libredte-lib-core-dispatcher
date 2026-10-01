@@ -59,4 +59,12 @@ class XmlDocumentDeserializerTest extends TestCase
 
         $this->deserializer->deserialize(['not' => 'a string'], XmlDocument::class);
     }
+
+    public function testRejectsDataThatIsNotValidBase64(): void
+    {
+        $this->expectException(UnsupportedDataTypeException::class);
+        $this->expectExceptionMessage('requiere datos codificados en base64 válido');
+
+        $this->deserializer->deserialize('<Root/>', XmlDocument::class);
+    }
 }

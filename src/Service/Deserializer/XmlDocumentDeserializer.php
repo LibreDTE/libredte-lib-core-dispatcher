@@ -26,6 +26,7 @@ namespace libredte\lib\CoreDispatcher\Service\Deserializer;
 
 use Derafu\BackboneDispatcher\Abstract\AbstractDeserializer;
 use Derafu\Xml\XmlDocument;
+use libredte\lib\CoreDispatcher\Service\Deserializer\Trait\Base64DecoderTrait;
 
 /**
  * Construye un `XmlDocument` a partir de un string XML codificado en
@@ -33,6 +34,8 @@ use Derafu\Xml\XmlDocument;
  */
 class XmlDocumentDeserializer extends AbstractDeserializer
 {
+    use Base64DecoderTrait;
+
     /**
      * {@inheritDoc}
      */
@@ -41,7 +44,7 @@ class XmlDocumentDeserializer extends AbstractDeserializer
         $data = $this->assertString($data);
 
         $document = new XmlDocument();
-        $document->loadXml(base64_decode($data));
+        $document->loadXml($this->decodeBase64($data));
 
         return $document;
     }

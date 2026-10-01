@@ -1,0 +1,28 @@
+# billing.document.parser::parse
+#
+# Un `inputData` que es un string es el contenido original y viaja en base64.
+# Aquí un XML declarado como ISO-8859-1, con caracteres con tilde, parseado con
+# la estrategia `default.xml`: llega a la biblioteca con sus bytes originales y
+# los caracteres se interpretan bien.
+description: >
+  Parsea un XML en ISO-8859-1 enviado en base64 y conserva los caracteres con
+  tilde.
+
+request:
+  package: billing
+  component: document
+  worker: parser
+  operation: parse
+  parameters:
+    bag:
+      inputData: "{{documentoXmlIso88591}}"
+      options:
+        parser:
+          strategy: default.xml
+
+expect:
+  success:
+    value_contains:
+      document_parsed.Encabezado.IdDoc.TipoDTE: '33'
+      document_parsed.Encabezado.Emisor.GiroEmis: Tecnología, Informática y Telecomunicaciones
+      document_parsed.Detalle.NmbItem: Asesoría

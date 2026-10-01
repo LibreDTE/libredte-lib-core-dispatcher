@@ -26,6 +26,7 @@ namespace libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Identifier;
 
 use Derafu\BackboneDispatcher\Abstract\AbstractDeserializer;
 use libredte\lib\Core\Package\Billing\Component\Identifier\Contract\CafLoaderWorkerInterface;
+use libredte\lib\CoreDispatcher\Service\Deserializer\Trait\Base64DecoderTrait;
 
 /**
  * Construye un `Caf` a partir de un XML de CAF codificado en base64,
@@ -33,6 +34,8 @@ use libredte\lib\Core\Package\Billing\Component\Identifier\Contract\CafLoaderWor
  */
 class CafDeserializer extends AbstractDeserializer
 {
+    use Base64DecoderTrait;
+
     public function __construct(
         private readonly CafLoaderWorkerInterface $cafLoaderWorker,
     ) {
@@ -45,6 +48,6 @@ class CafDeserializer extends AbstractDeserializer
     {
         $data = $this->assertString($data);
 
-        return $this->cafLoaderWorker->load(base64_decode($data));
+        return $this->cafLoaderWorker->load($this->decodeBase64($data));
     }
 }

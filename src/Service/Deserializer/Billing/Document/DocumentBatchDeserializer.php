@@ -26,10 +26,10 @@ namespace libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Document;
 
 use Derafu\BackboneDispatcher\Abstract\AbstractDeserializer;
 use Derafu\BackboneDispatcher\Contract\ObjectFactoryInterface;
-use Derafu\BackboneDispatcher\Exception\UnsupportedDataTypeException;
 use Derafu\Certificate\Contract\CertificateInterface;
 use libredte\lib\Core\Package\Billing\Component\Document\Support\DocumentBatch;
 use libredte\lib\Core\Package\Billing\Component\TradingParties\Contract\EmisorInterface;
+use libredte\lib\CoreDispatcher\Service\Deserializer\Trait\Base64DecoderTrait;
 
 /**
  * Construye un `DocumentBatch` a partir de datos de un arreglo.
@@ -44,6 +44,8 @@ use libredte\lib\Core\Package\Billing\Component\TradingParties\Contract\EmisorIn
  */
 class DocumentBatchDeserializer extends AbstractDeserializer
 {
+    use Base64DecoderTrait;
+
     public function __construct(
         private readonly ObjectFactoryInterface $objectFactory,
     ) {
@@ -57,7 +59,9 @@ class DocumentBatchDeserializer extends AbstractDeserializer
         $data = $this->assertArray($data);
 
         $batch = new DocumentBatch(
-            inputData: $this->decodeInputData($data['inputData'] ?? null),
+            inputData: isset($data['inputData'])
+                ? $this->decodeBase64($data['inputData'], 'inputData')
+                : null,
             options: $data['options'] ?? null,
         );
 
@@ -71,33 +75,5 @@ class DocumentBatchDeserializer extends AbstractDeserializer
         ));
 
         return $batch;
-    }
-
-    /**
-     * Decodifica el contenido del lote, que debe venir en base64 válido.
-     *
-     * @param mixed $inputData Contenido en base64, o `null` si no se indicó.
-     * @return string|null Contenido decodificado, o `null` si no se indicó.
-     * @throws UnsupportedDataTypeException Si no es un string en base64 válido.
-     */
-    private function decodeInputData(mixed $inputData): ?string
-    {
-        if ($inputData === null) {
-            return null;
-        }
-
-        $decoded = is_string($inputData)
-            ? base64_decode($inputData, true)
-            : false
-        ;
-
-        if ($decoded === false) {
-            throw new UnsupportedDataTypeException([
-                '{deserializer} requires the inputData field encoded in base64.',
-                'deserializer' => static::class,
-            ]);
-        }
-
-        return $decoded;
     }
 }

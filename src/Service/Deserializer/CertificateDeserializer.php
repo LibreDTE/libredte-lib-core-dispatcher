@@ -27,6 +27,7 @@ namespace libredte\lib\CoreDispatcher\Service\Deserializer;
 use Derafu\BackboneDispatcher\Abstract\AbstractDeserializer;
 use Derafu\Certificate\Contract\CertificateLoaderInterface;
 use InvalidArgumentException;
+use libredte\lib\CoreDispatcher\Service\Deserializer\Trait\Base64DecoderTrait;
 
 /**
  * Construye un `Certificate` ya sea a partir de datos PKCS#12 codificados
@@ -35,6 +36,8 @@ use InvalidArgumentException;
  */
 class CertificateDeserializer extends AbstractDeserializer
 {
+    use Base64DecoderTrait;
+
     public function __construct(
         private readonly CertificateLoaderInterface $certificateLoader,
     ) {
@@ -49,7 +52,7 @@ class CertificateDeserializer extends AbstractDeserializer
 
         if (!empty($data['data']) && !empty($data['password'])) {
             return $this->certificateLoader->loadFromData(
-                data: base64_decode($data['data']),
+                data: $this->decodeBase64($data['data'], 'data'),
                 password: $data['password'],
             );
         }
@@ -61,6 +64,6 @@ class CertificateDeserializer extends AbstractDeserializer
             );
         }
 
-        throw new InvalidArgumentException('Certificate data or keys are required.');
+        throw new InvalidArgumentException('Se requieren los datos del certificado (data y password) o sus llaves (certificate y privateKey).');
     }
 }

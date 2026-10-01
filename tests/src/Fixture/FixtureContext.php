@@ -238,6 +238,22 @@ final class FixtureContext
         ]));
     }
 
+    /**
+     * Un documento en XML codificado en ISO-8859-1 (con su declaración y
+     * caracteres con tilde), para las operaciones que reciben el contenido
+     * original de los datos de entrada (`inputData`).
+     *
+     * @return string XML codificado en base64.
+     */
+    public function documentoXmlIso88591(): string
+    {
+        return base64_encode(
+            (string) file_get_contents(
+                __DIR__ . '/../../fixtures/inputs/documento_iso_8859_1.xml'
+            )
+        );
+    }
+
     private function freshFacturaAfectaDocument(): DocumentInterface
     {
         if ($this->facturaAfectaDocument === null) {

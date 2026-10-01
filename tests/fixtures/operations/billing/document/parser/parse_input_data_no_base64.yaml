@@ -1,0 +1,22 @@
+# billing.document.parser::parse
+#
+# Un `inputData` que es un string debe venir en base64. Un XML en texto plano
+# se rechaza en vez de interpretarse mal.
+description: >
+  Un inputData en texto plano, que no es base64 válido, se rechaza.
+
+request:
+  package: billing
+  component: document
+  worker: parser
+  operation: parse
+  parameters:
+    bag:
+      inputData: '<?xml version="1.0"?><DTE/>'
+      options:
+        parser:
+          strategy: default.xml
+
+expect:
+  failure:
+    problem_title: Derafu\BackboneDispatcher\Exception\NoDeserializerFoundException

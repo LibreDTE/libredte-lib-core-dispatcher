@@ -34,6 +34,7 @@ use libredte\lib\Core\Package\Billing\Component\Document\Support\DocumentBag;
 use libredte\lib\Core\Package\Billing\Component\Identifier\Contract\CafInterface;
 use libredte\lib\Core\Package\Billing\Component\TradingParties\Contract\EmisorInterface;
 use libredte\lib\Core\Package\Billing\Component\TradingParties\Contract\ReceptorInterface;
+use libredte\lib\CoreDispatcher\Service\Deserializer\Trait\Base64DecoderTrait;
 
 /**
  * Construye un `DocumentBag` a partir de datos de un arreglo, deserializando
@@ -46,6 +47,8 @@ use libredte\lib\Core\Package\Billing\Component\TradingParties\Contract\Receptor
  */
 class DocumentBagDeserializer extends AbstractDeserializer
 {
+    use Base64DecoderTrait;
+
     public function __construct(
         private readonly ObjectFactoryInterface $objectFactory,
     ) {
@@ -59,7 +62,7 @@ class DocumentBagDeserializer extends AbstractDeserializer
         $data = $this->assertArray($data);
 
         return new DocumentBag(
-            inputData: $data['inputData'] ?? null,
+            inputData: $this->decodeInputData($data['inputData'] ?? null),
             parsedData: $data['parsedData'] ?? null,
             normalizedData: $data['normalizedData'] ?? null,
             libredteData: $data['libredteData'] ?? null,

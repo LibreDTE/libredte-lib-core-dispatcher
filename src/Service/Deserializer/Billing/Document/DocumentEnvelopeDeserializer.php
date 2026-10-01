@@ -26,6 +26,7 @@ namespace libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Document;
 
 use Derafu\BackboneDispatcher\Abstract\AbstractDeserializer;
 use libredte\lib\Core\Package\Billing\Component\Document\Contract\DispatcherWorkerInterface;
+use libredte\lib\CoreDispatcher\Service\Deserializer\Trait\Base64DecoderTrait;
 
 /**
  * Construye un `DocumentEnvelope` a partir de un XML de "sobre" codificado
@@ -33,6 +34,8 @@ use libredte\lib\Core\Package\Billing\Component\Document\Contract\DispatcherWork
  */
 class DocumentEnvelopeDeserializer extends AbstractDeserializer
 {
+    use Base64DecoderTrait;
+
     public function __construct(
         private readonly DispatcherWorkerInterface $dispatcherWorker,
     ) {
@@ -45,6 +48,6 @@ class DocumentEnvelopeDeserializer extends AbstractDeserializer
     {
         $data = $this->assertString($data);
 
-        return $this->dispatcherWorker->loadXml(base64_decode($data));
+        return $this->dispatcherWorker->loadXml($this->decodeBase64($data));
     }
 }

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<DTE xmlns="http://www.sii.cl/SiiDte" version="1.0">
+  <Documento ID="F1T33">
+    <Encabezado>
+      <IdDoc><TipoDTE>33</TipoDTE><Folio>1</Folio></IdDoc>
+      <Emisor><RUTEmisor>76192083-9</RUTEmisor><RznSoc>SASCO SpA</RznSoc><GiroEmis>Tecnología, Informática y Telecomunicaciones</GiroEmis></Emisor>
+    </Encabezado>
+    <Detalle><NroLinDet>1</NroLinDet><NmbItem>Asesoría</NmbItem><QtyItem>1</QtyItem><PrcItem>1000</PrcItem></Detalle>
+  </Documento>
+</DTE>

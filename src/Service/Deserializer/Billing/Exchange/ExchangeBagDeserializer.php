@@ -37,6 +37,7 @@ use libredte\lib\Core\Package\Billing\Component\Exchange\Support\Attachment;
 use libredte\lib\Core\Package\Billing\Component\Exchange\Support\Document;
 use libredte\lib\Core\Package\Billing\Component\Exchange\Support\Envelope;
 use libredte\lib\Core\Package\Billing\Component\Exchange\Support\ExchangeBag;
+use libredte\lib\CoreDispatcher\Service\Deserializer\Trait\Base64DecoderTrait;
 
 /**
  * Construye un `ExchangeBag` a partir de datos de un arreglo, reconstruyendo
@@ -61,6 +62,8 @@ use libredte\lib\Core\Package\Billing\Component\Exchange\Support\ExchangeBag;
  */
 class ExchangeBagDeserializer extends AbstractDeserializer
 {
+    use Base64DecoderTrait;
+
     /**
      * {@inheritDoc}
      */
@@ -132,7 +135,9 @@ class ExchangeBagDeserializer extends AbstractDeserializer
     private function buildDocument(array $data): Document
     {
         return new Document(
-            content: isset($data['content']) ? base64_decode($data['content']) : '',
+            content: isset($data['content'])
+                ? $this->decodeBase64($data['content'], 'content')
+                : '',
             attachments: array_map(
                 fn (array $attachmentData) => $this->buildAttachment($attachmentData),
                 $data['attachments'] ?? [],
@@ -149,7 +154,7 @@ class ExchangeBagDeserializer extends AbstractDeserializer
         $this->assertKeys($data, ['data']);
 
         return new Attachment(
-            body: base64_decode($data['data']),
+            body: $this->decodeBase64($data['data'], 'data'),
             filename: $data['name'] ?? null,
             contentType: $data['type'] ?? null,
         );

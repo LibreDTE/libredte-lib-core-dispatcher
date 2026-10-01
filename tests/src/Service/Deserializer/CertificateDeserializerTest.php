@@ -86,8 +86,19 @@ class CertificateDeserializerTest extends TestCase
     public function testRejectsDataWithNeitherKeysNorData(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Certificate data or keys are required.');
+        $this->expectExceptionMessage('Se requieren los datos del certificado (data y password) o sus llaves (certificate y privateKey).');
 
         $this->deserializer->deserialize([], CertificateInterface::class);
+    }
+
+    public function testRejectsPkcs12DataThatIsNotValidBase64(): void
+    {
+        $this->expectException(UnsupportedDataTypeException::class);
+        $this->expectExceptionMessage('requiere el campo data codificado en base64 válido');
+
+        $this->deserializer->deserialize([
+            'data' => 'no es base64!',
+            'password' => 'clave',
+        ], CertificateInterface::class);
     }
 }

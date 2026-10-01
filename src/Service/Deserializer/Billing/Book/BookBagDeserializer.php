@@ -30,6 +30,7 @@ use Derafu\Certificate\Contract\CertificateInterface;
 use libredte\lib\Core\Package\Billing\Component\Book\Enum\TipoLibro;
 use libredte\lib\Core\Package\Billing\Component\Book\Support\BookBag;
 use libredte\lib\Core\Package\Billing\Component\TradingParties\Contract\EmisorInterface;
+use libredte\lib\CoreDispatcher\Service\Deserializer\Trait\Base64DecoderTrait;
 
 /**
  * Construye un `BookBag` a partir de datos de un arreglo, deserializando
@@ -43,6 +44,8 @@ use libredte\lib\Core\Package\Billing\Component\TradingParties\Contract\EmisorIn
  */
 class BookBagDeserializer extends AbstractDeserializer
 {
+    use Base64DecoderTrait;
+
     public function __construct(
         private readonly ObjectFactoryInterface $objectFactory,
     ) {
@@ -59,7 +62,7 @@ class BookBagDeserializer extends AbstractDeserializer
 
         return new BookBag(
             tipo: TipoLibro::from($data['tipo']),
-            inputData: $data['inputData'] ?? [],
+            inputData: $this->decodeInputData($data['inputData'] ?? []),
             caratula: $data['caratula'] ?? [],
             detalle: $data['detalle'] ?? [],
             options: $data['options'] ?? null,
