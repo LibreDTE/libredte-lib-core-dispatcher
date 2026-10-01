@@ -1,0 +1,36 @@
+# billing.document.batch_processor::parse
+#
+# Parsea un lote de emisión masiva (aquí un CSV, estrategia por defecto
+# `spreadsheet.csv`) y entrega el lote (`DocumentBatchInterface`) con una bolsa
+# por cada documento, con el dato parseado (`document_parsed`). No construye
+# los documentos: no necesita certificado ni CAF, y el emisor es opcional.
+#
+# El contenido del lote viaja en base64. La respuesta solo contiene las bolsas
+# (`document_bags`): no devuelve el contenido enviado ni el certificado.
+description: >
+  Parsea un CSV de emisión masiva con una factura afecta y entrega el lote con
+  el documento parseado.
+
+request:
+  package: billing
+  component: document
+  worker: batch_processor
+  operation: parse
+  parameters:
+    batch:
+      inputData: "{{emisionMasivaCsv}}"
+      emisor:
+        rut: '76192083-9'
+        razon_social: SASCO SpA
+
+expect:
+  success:
+    value_contains:
+      document_bags.0.document_parsed.Encabezado.IdDoc.TipoDTE: 33
+      document_bags.0.document_parsed.Encabezado.IdDoc.Folio: 1
+      document_bags.0.document_parsed.Encabezado.Receptor.RznSocRecep: Cliente de Prueba
+      document_bags.0.document_parsed.Detalle.0.NmbItem: Servicio de prueba
+      document_bags.0.document_parsed.Detalle.0.PrcItem: 10000.0
+    value_matches_jmespath:
+      "length(keys(@))": 1
+      "length(document_bags)": 1

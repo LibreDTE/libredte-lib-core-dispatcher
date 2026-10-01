@@ -222,6 +222,22 @@ final class FixtureContext
         return base64_encode($this->freshFacturaAfectaDocument()->saveXml());
     }
 
+    /**
+     * Un archivo CSV de emisión masiva con un único documento (la misma
+     * factura afecta de `facturaAfectaParsedData()`), para las operaciones de
+     * procesamiento en lote (`batch_processor::parse`).
+     *
+     * @return string CSV con el encabezado y una fila, codificado en base64.
+     */
+    public function emisionMasivaCsv(): string
+    {
+        return base64_encode(implode("\n", [
+            'TipoDTE;Folio;FchEmis;FchVenc;RUTRecep;RznSocRecep;GiroRecep;Telefono;CorreoRecep;DirRecep;CmnaRecep;VlrCodigo;IndExe;NmbItem;DscItem;QtyItem;UnmdItem;PrcItem',
+            '33;1;;;' . self::GENERICO_RUT . ';' . self::GENERICO_RAZON_SOCIAL . ';Servicios;;;Santiago;Santiago;;;Servicio de prueba;;1;;10000',
+            '',
+        ]));
+    }
+
     private function freshFacturaAfectaDocument(): DocumentInterface
     {
         if ($this->facturaAfectaDocument === null) {

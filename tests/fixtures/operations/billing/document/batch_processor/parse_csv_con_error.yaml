@@ -1,0 +1,21 @@
+# billing.document.batch_processor::parse
+#
+# El contenido del lote tiene una fila con un folio inválido (`abc`), que el
+# parser del CSV rechaza. La operación debe fallar con `BatchProcessorException`.
+description: >
+  Un CSV de emisión masiva con un folio inválido falla con
+  BatchProcessorException.
+
+request:
+  package: billing
+  component: document
+  worker: batch_processor
+  operation: parse
+  parameters:
+    batch:
+      # TipoDTE;Folio;...;PrcItem, con `33;abc;...` (base64).
+      inputData: "VGlwb0RURTtGb2xpbztGY2hFbWlzO0ZjaFZlbmM7UlVUUmVjZXA7UnpuU29jUmVjZXA7R2lyb1JlY2VwO1RlbGVmb25vO0NvcnJlb1JlY2VwO0RpclJlY2VwO0NtbmFSZWNlcDtWbHJDb2RpZ287SW5kRXhlO05tYkl0ZW07RHNjSXRlbTtRdHlJdGVtO1VubWRJdGVtO1ByY0l0ZW0KMzM7YWJjOzs7NjY2NjY2NjYtNjtDbGllbnRlIGRlIFBydWViYTtTZXJ2aWNpb3M7OztTYW50aWFnbztTYW50aWFnbzs7O1NlcnZpY2lvIGRlIHBydWViYTs7MTs7MTAwMDAK"
+
+expect:
+  failure:
+    problem_title: libredte\lib\Core\Package\Billing\Component\Document\Exception\BatchProcessorException

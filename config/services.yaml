@@ -39,6 +39,7 @@ services:
     # visibilidad.
     libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Book\BookBagDeserializer: ~
     libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Document\DocumentBagDeserializer: ~
+    libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Document\DocumentBatchDeserializer: ~
     libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Document\DocumentEnvelopeDeserializer: ~
     libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Exchange\ExchangeBagDeserializer: ~
     libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Exchange\ExchangeDocumentBagDeserializer: ~
@@ -66,6 +67,7 @@ services:
             $deserializers:
                 libredte\lib\Core\Package\Billing\Component\Book\Contract\BookBagInterface: '@libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Book\BookBagDeserializer'
                 libredte\lib\Core\Package\Billing\Component\Document\Contract\DocumentBagInterface: '@libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Document\DocumentBagDeserializer'
+                libredte\lib\Core\Package\Billing\Component\Document\Contract\DocumentBatchInterface: '@libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Document\DocumentBatchDeserializer'
                 libredte\lib\Core\Package\Billing\Component\Document\Contract\DocumentEnvelopeInterface: '@libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Document\DocumentEnvelopeDeserializer'
                 libredte\lib\Core\Package\Billing\Component\Exchange\Contract\ExchangeBagInterface: '@libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Exchange\ExchangeBagDeserializer'
                 libredte\lib\Core\Package\Billing\Component\Exchange\Support\ExchangeDocumentBag: '@libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Exchange\ExchangeDocumentBagDeserializer'

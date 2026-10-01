@@ -34,6 +34,7 @@ use libredte\lib\Core\Package\Billing\Component\TradingParties\Entity\Emisor;
 use libredte\lib\CoreDispatcher\Bootstrap;
 use libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Book\BookBagDeserializer;
 use libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Document\DocumentBagDeserializer;
+use libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Document\DocumentBatchDeserializer;
 use libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Document\DocumentEnvelopeDeserializer;
 use libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Exchange\ExchangeDocumentBagDeserializer;
 use libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Identifier\CafDeserializer;
@@ -73,6 +74,7 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(ReceptorDeserializer::class)]
 #[UsesClass(SiiRequestDeserializer::class)]
 #[UsesClass(XmlDocumentDeserializer::class)]
+#[UsesClass(DocumentBatchDeserializer::class)]
 class BootstrapTest extends TestCase
 {
     private SafeDispatcherInterface $dispatcher;
