@@ -3,31 +3,31 @@
 declare(strict_types=1);
 
 /**
- * LibreDTE: Conector (Dispatcher) para la Biblioteca PHP (Core).
- * Copyright (C) LibreDTE <https://www.libredte.cl>
+ * LibreDTE: Connector (Dispatcher) for the PHP Library (Core).
+ * Copyright (C) 2026 LibreDTE <https://www.libredte.cl>
  *
- * Este programa es software libre: usted puede redistribuirlo y/o modificarlo
- * bajo los términos de la Licencia Pública General Affero de GNU publicada por
- * la Fundación para el Software Libre, ya sea la versión 3 de la Licencia, o
- * (a su elección) cualquier versión posterior de la misma.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Este programa se distribuye con la esperanza de que sea útil, pero SIN
- * GARANTÍA ALGUNA; ni siquiera la garantía implícita MERCANTIL o de APTITUD
- * PARA UN PROPÓSITO DETERMINADO. Consulte los detalles de la Licencia Pública
- * General Affero de GNU para obtener una información más detallada.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
  *
- * Debería haber recibido una copia de la Licencia Pública General Affero de
- * GNU junto a este programa.
- *
- * En caso contrario, consulte <http://www.gnu.org/licenses/agpl.html>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 namespace libredte\lib\TestsCoreDispatcher;
 
+use Derafu\Array\ArrayReader;
 use Derafu\BackboneDispatcher\Contract\OperationResultInterface;
 use Derafu\BackboneDispatcher\Contract\SafeDispatcherInterface;
 use Derafu\BackboneDispatcher\ValueObject\OperationRequest;
 use Derafu\Selector\Selector;
+use Derafu\Value\ValueType;
 use FilesystemIterator;
 use libredte\lib\CoreDispatcher\Bootstrap;
 use libredte\lib\TestsCoreDispatcher\Fixture\FixtureContext;
@@ -38,6 +38,7 @@ use PHPUnit\Framework\TestCase;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RuntimeException;
+use SplFileInfo;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -112,6 +113,7 @@ class OperationFixturesTest extends TestCase
         );
 
         foreach ($files as $file) {
+            self::assertInstanceOf(SplFileInfo::class, $file);
             if ($file->getExtension() !== 'yaml') {
                 continue;
             }
@@ -125,25 +127,26 @@ class OperationFixturesTest extends TestCase
     #[DataProvider('fixtureProvider')]
     public function testOperationFixture(string $path): void
     {
-        $fixture = Yaml::parseFile($path);
+        $fixture = ArrayReader::fromValue(Yaml::parseFile($path), source: $path);
+        $requestData = $fixture->requireReader('request');
 
         try {
-            $parameters = $this->resolvePlaceholders($fixture['request']['parameters'] ?? []);
+            $parameters = $this->resolvePlaceholders($requestData->get('parameters', ValueType::map(), []));
         } catch (FixturePlaceholderUnavailableException $e) {
             $this->markTestSkipped($e->getMessage());
         }
 
         $request = new OperationRequest(
-            $fixture['request']['package'],
-            $fixture['request']['component'],
-            $fixture['request']['worker'],
-            $fixture['request']['operation'],
-            $parameters,
+            $requestData->requireString('package'),
+            $requestData->requireString('component'),
+            $requestData->requireString('worker'),
+            $requestData->requireString('operation'),
+            ValueType::map()->parse($parameters, 'request.parameters', $path),
         );
 
         $result = self::$dispatcher->dispatch($request);
 
-        $this->assertExpectation($fixture['expect'] ?? [], $result);
+        $this->assertExpectation($fixture->get('expect', ValueType::map(), []), $result);
     }
 
     /**
@@ -190,11 +193,13 @@ class OperationFixturesTest extends TestCase
      */
     private function assertExpectation(array $expect, OperationResultInterface $result): void
     {
-        if (isset($expect['either'])) {
+        $reader = ArrayReader::fromArray($expect);
+        if ($reader->hasValue('either')) {
+            $either = $reader->requireReader('either');
             if ($result->isSuccess()) {
-                $this->assertSuccess($expect['either']['success'] ?? [], $result);
+                $this->assertSuccess($either->get('success', ValueType::map(), []), $result);
             } else {
-                $this->assertFailure($expect['either']['failure'] ?? [], $result);
+                $this->assertFailure($either->get('failure', ValueType::map(), []), $result);
             }
 
             return;
@@ -202,7 +207,7 @@ class OperationFixturesTest extends TestCase
 
         if (isset($expect['success'])) {
             $this->assertTrue($result->isSuccess(), $this->describeFailure($result));
-            $this->assertSuccess($expect['success'], $result);
+            $this->assertSuccess($reader->requireMap('success'), $result);
 
             return;
         }
@@ -212,7 +217,7 @@ class OperationFixturesTest extends TestCase
                 $result->isSuccess(),
                 'Expected the operation to fail, but it succeeded.'
             );
-            $this->assertFailure($expect['failure'], $result);
+            $this->assertFailure($reader->requireMap('failure'), $result);
 
             return;
         }
@@ -226,16 +231,17 @@ class OperationFixturesTest extends TestCase
     private function assertSuccess(array $expect, OperationResultInterface $result): void
     {
         $value = $result->getValue();
+        $reader = ArrayReader::fromArray($expect);
 
         if (array_key_exists('value_equals', $expect)) {
             $this->assertSame($expect['value_equals'], $value);
         }
 
-        foreach ($expect['value_contains'] ?? [] as $path => $expected) {
+        foreach ($reader->getArray('value_contains') ?? [] as $path => $expected) {
             $this->assertValueContains((string) $path, $expected, $value);
         }
 
-        foreach ($expect['value_matches_jmespath'] ?? [] as $expression => $expected) {
+        foreach ($reader->getArray('value_matches_jmespath') ?? [] as $expression => $expected) {
             $this->assertValueMatchesJmesPath((string) $expression, $expected, $value);
         }
     }
@@ -255,11 +261,13 @@ class OperationFixturesTest extends TestCase
         $problem = $result->getProblem();
         $this->assertNotNull($problem, 'Expected a ProblemDetail on a failed result.');
 
-        if (isset($expect['problem_title'])) {
-            $expectedTitles = is_array($expect['problem_title'])
-                ? $expect['problem_title']
-                : [$expect['problem_title']]
-            ;
+        $reader = ArrayReader::fromArray($expect);
+        if ($reader->hasValue('problem_title')) {
+            $title = $reader->require('problem_title', ValueType::oneOf(
+                ValueType::string(),
+                ValueType::arrayOf(ValueType::string()),
+            ));
+            $expectedTitles = is_array($title) ? $title : [$title];
             $actualTitle = $problem->toArray()['title'];
 
             $this->assertContains($actualTitle, $expectedTitles, sprintf(

@@ -2,8 +2,8 @@
     "name": "libredte/libredte-lib-core-dispatcher",
     "description": "LibreDTE: Conector (Dispatcher) para exponer la Biblioteca PHP (Core) de forma segura a otros lenguajes.",
     "type": "library",
-    "keywords": ["dte", "lce", "sii", "facturación electrónica", "chile"],
-    "homepage": "https://www.libredte.cl",
+    "keywords": ["chile", "cl", "dte", "sii", "invoicing", "electronic invoicing", "facturación electrónica"],
+    "homepage": "https://core.libredte.cl",
     "license": "AGPL-3.0+",
     "authors": [
         {
@@ -23,19 +23,21 @@
     },
     "require": {
         "php": "^8.5",
+        "derafu/array": "dev-main",
         "derafu/backbone": "dev-main",
         "derafu/backbone-dispatcher": "dev-main",
+        "derafu/value": "dev-main",
         "libredte/libredte-lib-core": "dev-master",
         "webklex/php-imap": "^6.2"
     },
     "require-dev": {
         "ext-xdebug": "*",
         "friendsofphp/php-cs-fixer": "^3.95",
-        "phpstan/phpstan": "^2.2",
-        "phpunit/phpunit": "^13.2",
-        "symfony/yaml": "^8.0",
+        "phpstan/phpstan": "^2.3",
+        "phpunit/phpunit": "^13.4",
+        "symfony/yaml": "^8.1",
         "derafu/selector": "dev-main",
-        "mtdowling/jmespath.php": "^2.8"
+        "mtdowling/jmespath.php": "^2.9"
     },
     "scripts": {
         "tests": "XDEBUG_MODE=coverage vendor/bin/phpunit --configuration=phpunit.xml",

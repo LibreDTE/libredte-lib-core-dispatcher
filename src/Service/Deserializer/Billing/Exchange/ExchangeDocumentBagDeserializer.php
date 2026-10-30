@@ -3,30 +3,31 @@
 declare(strict_types=1);
 
 /**
- * LibreDTE: Conector (Dispatcher) para la Biblioteca PHP (Core).
- * Copyright (C) LibreDTE <https://www.libredte.cl>
+ * LibreDTE: Connector (Dispatcher) for the PHP Library (Core).
+ * Copyright (C) 2026 LibreDTE <https://www.libredte.cl>
  *
- * Este programa es software libre: usted puede redistribuirlo y/o modificarlo
- * bajo los términos de la Licencia Pública General Affero de GNU publicada por
- * la Fundación para el Software Libre, ya sea la versión 3 de la Licencia, o
- * (a su elección) cualquier versión posterior de la misma.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Este programa se distribuye con la esperanza de que sea útil, pero SIN
- * GARANTÍA ALGUNA; ni siquiera la garantía implícita MERCANTIL o de APTITUD
- * PARA UN PROPÓSITO DETERMINADO. Consulte los detalles de la Licencia Pública
- * General Affero de GNU para obtener una información más detallada.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
  *
- * Debería haber recibido una copia de la Licencia Pública General Affero de
- * GNU junto a este programa.
- *
- * En caso contrario, consulte <http://www.gnu.org/licenses/agpl.html>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 namespace libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Exchange;
 
+use Derafu\Array\ArrayReader;
 use Derafu\BackboneDispatcher\Abstract\AbstractDeserializer;
 use Derafu\BackboneDispatcher\Contract\ObjectFactoryInterface;
 use Derafu\Certificate\Contract\CertificateInterface;
+use Derafu\Value\ValueCaster;
+use Derafu\Value\ValueType;
 use libredte\lib\Core\Package\Billing\Component\Exchange\Enum\TipoDocumentoRespuesta;
 use libredte\lib\Core\Package\Billing\Component\Exchange\Support\ExchangeDocumentBag;
 
@@ -49,19 +50,25 @@ class ExchangeDocumentBagDeserializer extends AbstractDeserializer
 
     /**
      * {@inheritDoc}
+     *
+     * @return ExchangeDocumentBag
      */
     public function deserialize(array|string $data, string $class): object
     {
         $data = $this->assertArray($data);
+        $reader = ArrayReader::fromArray($data, source: static::class);
 
         $this->assertKeys($data, ['tipo']);
 
         return new ExchangeDocumentBag(
-            tipo: TipoDocumentoRespuesta::from($data['tipo']),
-            caratula: $data['caratula'] ?? [],
-            data: $data['data'] ?? [],
-            certificate: $this->objectFactory->create(
-                $data['certificate'] ?? null,
+            tipo: TipoDocumentoRespuesta::from($reader->require('tipo', ValueType::oneOf(ValueType::int(), ValueType::string()))),
+            caratula: $reader->get('caratula', ValueType::map(), []),
+            data: $reader->get('data', ValueType::array(), []),
+            certificate: ValueCaster::getObject(
+                $this->objectFactory->create(
+                    $reader->get('certificate', ValueType::oneOf(ValueType::map(), ValueType::string())),
+                    CertificateInterface::class,
+                ),
                 CertificateInterface::class,
             ),
         );

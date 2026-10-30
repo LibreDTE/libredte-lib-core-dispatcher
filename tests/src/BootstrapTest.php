@@ -3,27 +3,26 @@
 declare(strict_types=1);
 
 /**
- * LibreDTE: Conector (Dispatcher) para la Biblioteca PHP (Core).
- * Copyright (C) LibreDTE <https://www.libredte.cl>
+ * LibreDTE: Connector (Dispatcher) for the PHP Library (Core).
+ * Copyright (C) 2026 LibreDTE <https://www.libredte.cl>
  *
- * Este programa es software libre: usted puede redistribuirlo y/o modificarlo
- * bajo los términos de la Licencia Pública General Affero de GNU publicada por
- * la Fundación para el Software Libre, ya sea la versión 3 de la Licencia, o
- * (a su elección) cualquier versión posterior de la misma.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Este programa se distribuye con la esperanza de que sea útil, pero SIN
- * GARANTÍA ALGUNA; ni siquiera la garantía implícita MERCANTIL o de APTITUD
- * PARA UN PROPÓSITO DETERMINADO. Consulte los detalles de la Licencia Pública
- * General Affero de GNU para obtener una información más detallada.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
  *
- * Debería haber recibido una copia de la Licencia Pública General Affero de
- * GNU junto a este programa.
- *
- * En caso contrario, consulte <http://www.gnu.org/licenses/agpl.html>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 namespace libredte\lib\TestsCoreDispatcher;
 
+use Derafu\Array\ArrayReader;
 use Derafu\BackboneDispatcher\Contract\SafeDispatcherInterface;
 use Derafu\BackboneDispatcher\Contract\SafeExplorerInterface;
 use Derafu\BackboneDispatcher\ValueObject\OperationRequest;
@@ -166,7 +165,9 @@ class BootstrapTest extends TestCase
         $result = $this->dispatcher->dispatch($request);
 
         $this->assertFalse($result->isSuccess());
-        $this->assertSame(DocumentException::class, $result->getProblem()->toArray()['title']);
+        $problem = $result->getProblem();
+        $this->assertNotNull($problem);
+        $this->assertSame(DocumentException::class, $problem->toArray()['title']);
     }
 
     public function testBootExplorerReturnsASafeExplorer(): void
@@ -183,7 +184,7 @@ class BootstrapTest extends TestCase
         $result = $explorer->getPackage('billing');
 
         $this->assertTrue($result->isSuccess());
-        $this->assertSame('billing', $result->getValue()['id']);
+        $this->assertSame('billing', ArrayReader::fromValue($result->getValue())->requireString('id'));
     }
 
     public function testBootExplorerNeverThrowsAndReturnsAProblemForAnUnknownPackage(): void

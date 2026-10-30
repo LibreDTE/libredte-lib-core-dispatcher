@@ -1,0 +1,12 @@
+imports:
+    - { resource: '../../../../../resources/config/libredte-dispatcher-services.yaml' }
+
+services:
+    test.object_factory:
+        alias: Derafu\BackboneDispatcher\Contract\ObjectFactoryInterface
+        public: true
+
+    libredte\lib\TestsCoreDispatcher\Fixture\DateTimeDeserializer:
+        tags:
+            - name: derafu_backbone_dispatcher.deserializer
+              type: DateTimeImmutable

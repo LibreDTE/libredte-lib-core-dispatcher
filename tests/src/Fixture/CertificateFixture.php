@@ -3,26 +3,29 @@
 declare(strict_types=1);
 
 /**
- * LibreDTE: Conector (Dispatcher) para la Biblioteca PHP (Core).
- * Copyright (C) LibreDTE <https://www.libredte.cl>
+ * LibreDTE: Connector (Dispatcher) for the PHP Library (Core).
+ * Copyright (C) 2026 LibreDTE <https://www.libredte.cl>
  *
- * Este programa es software libre: usted puede redistribuirlo y/o modificarlo
- * bajo los términos de la Licencia Pública General Affero de GNU publicada por
- * la Fundación para el Software Libre, ya sea la versión 3 de la Licencia, o
- * (a su elección) cualquier versión posterior de la misma.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Este programa se distribuye con la esperanza de que sea útil, pero SIN
- * GARANTÍA ALGUNA; ni siquiera la garantía implícita MERCANTIL o de APTITUD
- * PARA UN PROPÓSITO DETERMINADO. Consulte los detalles de la Licencia Pública
- * General Affero de GNU para obtener una información más detallada.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
  *
- * Debería haber recibido una copia de la Licencia Pública General Affero de
- * GNU junto a este programa.
- *
- * En caso contrario, consulte <http://www.gnu.org/licenses/agpl.html>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 namespace libredte\lib\TestsCoreDispatcher\Fixture;
+
+use OpenSSLAsymmetricKey;
+use OpenSSLCertificate;
+use OpenSSLCertificateSigningRequest;
+use PHPUnit\Framework\Assert;
 
 /**
  * Genera un par certificado/llave privada autofirmado real y desechable
@@ -49,6 +52,8 @@ final class CertificateFixture
             'private_key_type' => OPENSSL_KEYTYPE_RSA,
         ]);
 
+        Assert::assertInstanceOf(OpenSSLAsymmetricKey::class, $privateKey);
+
         $csr = openssl_csr_new(
             [
                 'commonName' => 'LibreDTE Dispatcher Test',
@@ -60,12 +65,15 @@ final class CertificateFixture
             ['digest_alg' => 'sha256'],
         );
 
+        Assert::assertInstanceOf(OpenSSLCertificateSigningRequest::class, $csr);
+
         $certificate = openssl_csr_sign($csr, null, $privateKey, 365, [
             'digest_alg' => 'sha256',
         ]);
 
-        openssl_x509_export($certificate, $certificatePem);
-        openssl_pkey_export($privateKey, $privateKeyPem);
+        Assert::assertInstanceOf(OpenSSLCertificate::class, $certificate);
+        Assert::assertTrue(openssl_x509_export($certificate, $certificatePem));
+        Assert::assertTrue(openssl_pkey_export($privateKey, $privateKeyPem));
 
         return [
             'certificate' => $certificatePem,

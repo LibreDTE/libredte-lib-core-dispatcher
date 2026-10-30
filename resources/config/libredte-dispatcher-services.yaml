@@ -1,0 +1,106 @@
+# Configuración pública de LibreDTE Core Dispatcher.
+# Importar este archivo desde la configuración del proyecto consumidor.
+# Reutiliza Core y el dispatcher compartido; aporta los deserializadores de LibreDTE.
+imports:
+    - { resource: '../../../libredte-lib-core/resources/config/libredte-services.yaml' }
+    - { resource: '../../../../derafu/backbone-dispatcher/resources/config/backbone-dispatcher-services.yaml' }
+
+parameters:
+    derafu.backbone_dispatcher.environment: '%kernel.environment%'
+    derafu.backbone_dispatcher.debug: '%kernel.debug%'
+    derafu.backbone_dispatcher.project_dir: '%kernel.project_dir%'
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+
+    # Miembros de la colección compartida, indexados por su tipo de destino.
+    libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Book\BookBagDeserializer:
+        tags:
+            - name: derafu_backbone_dispatcher.deserializer
+              type: libredte\lib\Core\Package\Billing\Component\Book\Contract\BookBagInterface
+
+    libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Document\DocumentBagDeserializer:
+        tags:
+            - name: derafu_backbone_dispatcher.deserializer
+              type: libredte\lib\Core\Package\Billing\Component\Document\Contract\DocumentBagInterface
+
+    libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Document\DocumentBatchDeserializer:
+        tags:
+            - name: derafu_backbone_dispatcher.deserializer
+              type: libredte\lib\Core\Package\Billing\Component\Document\Contract\DocumentBatchInterface
+
+    libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Document\DocumentEnvelopeDeserializer:
+        tags:
+            - name: derafu_backbone_dispatcher.deserializer
+              type: libredte\lib\Core\Package\Billing\Component\Document\Contract\DocumentEnvelopeInterface
+
+    libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Exchange\ExchangeBagDeserializer:
+        tags:
+            - name: derafu_backbone_dispatcher.deserializer
+              type: libredte\lib\Core\Package\Billing\Component\Exchange\Contract\ExchangeBagInterface
+
+    libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Exchange\ExchangeDocumentBagDeserializer:
+        tags:
+            - name: derafu_backbone_dispatcher.deserializer
+              type: libredte\lib\Core\Package\Billing\Component\Exchange\Support\ExchangeDocumentBag
+
+    libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Identifier\CafDeserializer:
+        tags:
+            - name: derafu_backbone_dispatcher.deserializer
+              type: libredte\lib\Core\Package\Billing\Component\Identifier\Contract\CafInterface
+
+    libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Integration\SiiRequestDeserializer:
+        tags:
+            - name: derafu_backbone_dispatcher.deserializer
+              type: libredte\lib\Core\Package\Billing\Component\Integration\Contract\SiiRequestInterface
+
+    libredte\lib\CoreDispatcher\Service\Deserializer\Billing\OwnershipTransfer\AecBagDeserializer:
+        tags:
+            - name: derafu_backbone_dispatcher.deserializer
+              type: libredte\lib\Core\Package\Billing\Component\OwnershipTransfer\Support\AecBag
+
+    libredte\lib\CoreDispatcher\Service\Deserializer\Billing\TradingParties\EmisorDeserializer:
+        tags:
+            - name: derafu_backbone_dispatcher.deserializer
+              type: libredte\lib\Core\Package\Billing\Component\TradingParties\Contract\EmisorInterface
+
+    libredte\lib\CoreDispatcher\Service\Deserializer\Billing\TradingParties\MandatarioDeserializer:
+        tags:
+            - name: derafu_backbone_dispatcher.deserializer
+              type: libredte\lib\Core\Package\Billing\Component\TradingParties\Contract\MandatarioInterface
+
+    libredte\lib\CoreDispatcher\Service\Deserializer\Billing\TradingParties\ReceptorDeserializer:
+        tags:
+            - name: derafu_backbone_dispatcher.deserializer
+              type: libredte\lib\Core\Package\Billing\Component\TradingParties\Contract\ReceptorInterface
+
+    libredte\lib\CoreDispatcher\Service\Deserializer\CertificateDeserializer:
+        tags:
+            - name: derafu_backbone_dispatcher.deserializer
+              type: Derafu\Certificate\Contract\CertificateInterface
+
+    libredte\lib\CoreDispatcher\Service\Deserializer\XmlDocumentDeserializer:
+        tags:
+            - name: derafu_backbone_dispatcher.deserializer
+              type: Derafu\Xml\Contract\XmlDocumentInterface
+
+    # Entradas públicas de Bootstrap. Conservan las implementaciones y los
+    # parámetros del YAML importado; solo cambia su visibilidad al consumidor.
+    Derafu\BackboneDispatcher\Contract\SafeDispatcherInterface:
+        class: Derafu\BackboneDispatcher\Service\Dispatch\SafeDispatcher
+        public: true
+        arguments:
+            $environment: '%derafu.backbone_dispatcher.environment%'
+            $debug: '%derafu.backbone_dispatcher.debug%'
+            $projectDir: '%derafu.backbone_dispatcher.project_dir%'
+
+    Derafu\BackboneDispatcher\Contract\SafeExplorerInterface:
+        class: Derafu\BackboneDispatcher\Service\Discovery\SafeExplorer
+        public: true
+        arguments:
+            $environment: '%derafu.backbone_dispatcher.environment%'
+            $debug: '%derafu.backbone_dispatcher.debug%'
+            $projectDir: '%derafu.backbone_dispatcher.project_dir%'

@@ -3,23 +3,21 @@
 declare(strict_types=1);
 
 /**
- * LibreDTE: Conector (Dispatcher) para la Biblioteca PHP (Core).
- * Copyright (C) LibreDTE <https://www.libredte.cl>
+ * LibreDTE: Connector (Dispatcher) for the PHP Library (Core).
+ * Copyright (C) 2026 LibreDTE <https://www.libredte.cl>
  *
- * Este programa es software libre: usted puede redistribuirlo y/o modificarlo
- * bajo los términos de la Licencia Pública General Affero de GNU publicada por
- * la Fundación para el Software Libre, ya sea la versión 3 de la Licencia, o
- * (a su elección) cualquier versión posterior de la misma.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Este programa se distribuye con la esperanza de que sea útil, pero SIN
- * GARANTÍA ALGUNA; ni siquiera la garantía implícita MERCANTIL o de APTITUD
- * PARA UN PROPÓSITO DETERMINADO. Consulte los detalles de la Licencia Pública
- * General Affero de GNU para obtener una información más detallada.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
  *
- * Debería haber recibido una copia de la Licencia Pública General Affero de
- * GNU junto a este programa.
- *
- * En caso contrario, consulte <http://www.gnu.org/licenses/agpl.html>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 namespace libredte\lib\TestsCoreDispatcher\Fixture;
@@ -27,6 +25,7 @@ namespace libredte\lib\TestsCoreDispatcher\Fixture;
 use Derafu\Certificate\Contract\CertificateInterface;
 use Derafu\Certificate\Service\CertificateFaker;
 use Derafu\Certificate\Service\CertificateLoader;
+use Derafu\Xml\Contract\XmlDocumentInterface;
 use libredte\lib\Core\Application;
 use libredte\lib\Core\Package\Billing\Component\Book\Contract\BookInterface;
 use libredte\lib\Core\Package\Billing\Component\Book\Contract\BuilderWorkerInterface as BookBuilderWorkerInterface;
@@ -48,6 +47,7 @@ use libredte\lib\Core\Package\Billing\Component\OwnershipTransfer\Entity\Aec;
 use libredte\lib\Core\Package\Billing\Component\OwnershipTransfer\Support\AecBag;
 use libredte\lib\Core\Package\Billing\Component\TradingParties\Entity\AutorizacionDte;
 use libredte\lib\Core\Package\Billing\Component\TradingParties\Entity\Emisor;
+use PHPUnit\Framework\Assert;
 use Throwable;
 
 /**
@@ -266,6 +266,8 @@ final class FixtureContext
             $this->facturaAfectaDocument = $this->builderWorker()->build($bag)->getDocument();
         }
 
+        Assert::assertInstanceOf(DocumentInterface::class, $this->facturaAfectaDocument);
+
         return $this->facturaAfectaDocument;
     }
 
@@ -335,6 +337,8 @@ final class FixtureContext
             $this->boletaAfectaDocument = $this->builderWorker()->build($bag)->getDocument();
         }
 
+        Assert::assertInstanceOf(DocumentInterface::class, $this->boletaAfectaDocument);
+
         return $this->boletaAfectaDocument;
     }
 
@@ -349,7 +353,10 @@ final class FixtureContext
      */
     public function sobreEnvioXml(): string
     {
-        return base64_encode($this->freshSobreEnvio()->getXmlDocument()->saveXml());
+        $xml = $this->freshSobreEnvio()->getXmlDocument();
+        Assert::assertInstanceOf(XmlDocumentInterface::class, $xml);
+
+        return base64_encode($xml->saveXml());
     }
 
     private function freshSobreEnvio(): DocumentEnvelopeInterface
@@ -442,6 +449,8 @@ final class FixtureContext
 
             $this->libroVenta = $this->bookBuilderWorker()->build($bag)->getBook();
         }
+
+        Assert::assertInstanceOf(BookInterface::class, $this->libroVenta);
 
         return $this->libroVenta;
     }
@@ -863,6 +872,8 @@ final class FixtureContext
 
             $this->siiFacturaAfectaDocument = $this->builderWorker()->build($bag)->getDocument();
         }
+
+        Assert::assertInstanceOf(DocumentInterface::class, $this->siiFacturaAfectaDocument);
 
         return $this->siiFacturaAfectaDocument;
     }

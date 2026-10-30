@@ -3,29 +3,31 @@
 declare(strict_types=1);
 
 /**
- * LibreDTE: Conector (Dispatcher) para la Biblioteca PHP (Core).
- * Copyright (C) LibreDTE <https://www.libredte.cl>
+ * LibreDTE: Connector (Dispatcher) for the PHP Library (Core).
+ * Copyright (C) 2026 LibreDTE <https://www.libredte.cl>
  *
- * Este programa es software libre: usted puede redistribuirlo y/o modificarlo
- * bajo los términos de la Licencia Pública General Affero de GNU publicada por
- * la Fundación para el Software Libre, ya sea la versión 3 de la Licencia, o
- * (a su elección) cualquier versión posterior de la misma.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Este programa se distribuye con la esperanza de que sea útil, pero SIN
- * GARANTÍA ALGUNA; ni siquiera la garantía implícita MERCANTIL o de APTITUD
- * PARA UN PROPÓSITO DETERMINADO. Consulte los detalles de la Licencia Pública
- * General Affero de GNU para obtener una información más detallada.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
  *
- * Debería haber recibido una copia de la Licencia Pública General Affero de
- * GNU junto a este programa.
- *
- * En caso contrario, consulte <http://www.gnu.org/licenses/agpl.html>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 namespace libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Exchange;
 
 use DateTimeImmutable;
+use Derafu\Array\ArrayReader;
 use Derafu\BackboneDispatcher\Abstract\AbstractDeserializer;
+use Derafu\Config\Contract\OptionsInterface;
+use Derafu\Container\Contract\BagInterface;
+use Derafu\Value\ValueType;
 use libredte\lib\Core\Package\Billing\Component\Exchange\Contract\PartyInterface;
 use libredte\lib\Core\Package\Billing\Component\Exchange\Entity\PartyEndpoint;
 use libredte\lib\Core\Package\Billing\Component\Exchange\Entity\PartyIdentifier;
@@ -66,43 +68,50 @@ class ExchangeBagDeserializer extends AbstractDeserializer
 
     /**
      * {@inheritDoc}
+     *
+     * @return ExchangeBag
      */
     public function deserialize(array|string $data, string $class): object
     {
         $data = $this->assertArray($data);
 
-        $bag = new ExchangeBag($data['options'] ?? []);
+        $reader = ArrayReader::fromArray($data, source: static::class);
+        $bag = new ExchangeBag($reader->get('options', ValueType::oneOf(ValueType::array(), ValueType::instanceOf(OptionsInterface::class)), []));
 
-        foreach ($data['envelopes'] ?? [] as $envelopeData) {
+        foreach ($reader->getArrayOf('envelopes', ValueType::array()) ?? [] as $envelopeData) {
             $bag->addEnvelope($this->buildEnvelope($envelopeData));
         }
 
         return $bag;
     }
 
+    /**
+     * @param array<array-key, mixed> $data Datos recibidos sin validar.
+     */
     private function buildEnvelope(array $data): Envelope
     {
         $this->assertKeys($data, ['sender', 'receiver']);
+        $reader = ArrayReader::fromArray($data, source: static::class);
 
         return new Envelope(
-            sender: $this->buildParty(Sender::class, $data['sender']),
-            receiver: $this->buildParty(Receiver::class, $data['receiver']),
+            sender: $this->buildParty(Sender::class, $reader->requireArray('sender')),
+            receiver: $this->buildParty(Receiver::class, $reader->requireArray('receiver')),
             documentType: isset($data['documentType'])
-                ? DocumentType::from($data['documentType'])
+                ? DocumentType::from($reader->require('documentType', ValueType::oneOf(ValueType::int(), ValueType::string())))
                 : DocumentType::B2B,
             process: isset($data['process'])
-                ? ProcessType::from($data['process'])
+                ? ProcessType::from($reader->require('process', ValueType::oneOf(ValueType::int(), ValueType::string())))
                 : ProcessType::BILLING,
-            businessMessageID: $data['businessMessageID'] ?? null,
-            originalBusinessMessageID: $data['originalBusinessMessageID'] ?? null,
+            businessMessageID: $reader->getString('businessMessageID'),
+            originalBusinessMessageID: $reader->getString('originalBusinessMessageID'),
             creationDateAndTime: isset($data['creationDateAndTime'])
-                ? new DateTimeImmutable($data['creationDateAndTime'])
+                ? new DateTimeImmutable($reader->requireString('creationDateAndTime'))
                 : null,
             documents: array_map(
                 fn (array $documentData) => $this->buildDocument($documentData),
-                $data['documents'] ?? [],
+                $reader->getArrayOf('documents', ValueType::array()) ?? [],
             ),
-            metadata: $data['metadata'] ?? [],
+            metadata: $reader->get('metadata', ValueType::oneOf(ValueType::array(), ValueType::instanceOf(BagInterface::class)), []),
         );
     }
 
@@ -110,53 +119,65 @@ class ExchangeBagDeserializer extends AbstractDeserializer
      * @template T of PartyInterface
      * @param class-string<T> $partyClass `Sender::class` o `Receiver::class`
      * — ambas comparten el mismo constructor heredado de `AbstractParty`.
+     * @param array<array-key, mixed> $data Datos recibidos sin validar.
      * @return T
      */
     private function buildParty(string $partyClass, array $data): PartyInterface
     {
         $this->assertKeys($data, ['identifier']);
+        $reader = ArrayReader::fromArray($data, source: static::class);
+        $identifierReader = $reader->requireReader('identifier');
 
         $identifier = new PartyIdentifier(
-            value: $data['identifier']['value'],
-            schemeId: $data['identifier']['schemeId'] ?? 'CL-RUT',
+            value: $identifierReader->requireString('value'),
+            schemeId: $identifierReader->getString('schemeId', 'CL-RUT'),
         );
 
         $endpoints = array_map(
-            fn (array $endpointData) => new PartyEndpoint(
-                value: $endpointData['value'],
-                schemeId: $endpointData['schemeId'] ?? 'EMAIL',
+            fn (ArrayReader $endpoint) => new PartyEndpoint(
+                value: $endpoint->requireString('value'),
+                schemeId: $endpoint->getString('schemeId', 'EMAIL'),
             ),
-            $data['endpoints'] ?? [],
+            $reader->getArrayReaders('endpoints') ?? [],
         );
 
         return new $partyClass($identifier, $endpoints);
     }
 
+    /**
+     * @param array<array-key, mixed> $data Datos recibidos sin validar.
+     */
     private function buildDocument(array $data): Document
     {
+        $reader = ArrayReader::fromArray($data, source: static::class);
+
         return new Document(
             content: isset($data['content'])
                 ? $this->decodeBase64($data['content'], 'content')
                 : '',
             attachments: array_map(
                 fn (array $attachmentData) => $this->buildAttachment($attachmentData),
-                $data['attachments'] ?? [],
+                $reader->getArrayOf('attachments', ValueType::array()) ?? [],
             ),
             type: isset($data['type'])
-                ? DocumentType::from($data['type'])
+                ? DocumentType::from($reader->require('type', ValueType::oneOf(ValueType::int(), ValueType::string())))
                 : DocumentType::B2B,
-            metadata: $data['metadata'] ?? [],
+            metadata: $reader->get('metadata', ValueType::oneOf(ValueType::array(), ValueType::instanceOf(BagInterface::class)), []),
         );
     }
 
+    /**
+     * @param array<array-key, mixed> $data Datos recibidos sin validar.
+     */
     private function buildAttachment(array $data): Attachment
     {
         $this->assertKeys($data, ['data']);
+        $reader = ArrayReader::fromArray($data, source: static::class);
 
         return new Attachment(
             body: $this->decodeBase64($data['data'], 'data'),
-            filename: $data['name'] ?? null,
-            contentType: $data['type'] ?? null,
+            filename: $reader->getString('name'),
+            contentType: $reader->getString('type'),
         );
     }
 }

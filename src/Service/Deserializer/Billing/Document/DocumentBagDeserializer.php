@@ -3,30 +3,32 @@
 declare(strict_types=1);
 
 /**
- * LibreDTE: Conector (Dispatcher) para la Biblioteca PHP (Core).
- * Copyright (C) LibreDTE <https://www.libredte.cl>
+ * LibreDTE: Connector (Dispatcher) for the PHP Library (Core).
+ * Copyright (C) 2026 LibreDTE <https://www.libredte.cl>
  *
- * Este programa es software libre: usted puede redistribuirlo y/o modificarlo
- * bajo los términos de la Licencia Pública General Affero de GNU publicada por
- * la Fundación para el Software Libre, ya sea la versión 3 de la Licencia, o
- * (a su elección) cualquier versión posterior de la misma.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Este programa se distribuye con la esperanza de que sea útil, pero SIN
- * GARANTÍA ALGUNA; ni siquiera la garantía implícita MERCANTIL o de APTITUD
- * PARA UN PROPÓSITO DETERMINADO. Consulte los detalles de la Licencia Pública
- * General Affero de GNU para obtener una información más detallada.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
  *
- * Debería haber recibido una copia de la Licencia Pública General Affero de
- * GNU junto a este programa.
- *
- * En caso contrario, consulte <http://www.gnu.org/licenses/agpl.html>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 namespace libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Document;
 
+use Derafu\Array\ArrayReader;
 use Derafu\BackboneDispatcher\Abstract\AbstractDeserializer;
 use Derafu\BackboneDispatcher\Contract\ObjectFactoryInterface;
 use Derafu\Certificate\Contract\CertificateInterface;
+use Derafu\Config\Contract\OptionsInterface;
+use Derafu\Value\ValueCaster;
+use Derafu\Value\ValueType;
 use Derafu\Xml\Contract\XmlDocumentInterface;
 use libredte\lib\Core\Package\Billing\Component\Document\Contract\DocumentInterface;
 use libredte\lib\Core\Package\Billing\Component\Document\Contract\TipoDocumentoInterface;
@@ -56,43 +58,67 @@ class DocumentBagDeserializer extends AbstractDeserializer
 
     /**
      * {@inheritDoc}
+     *
+     * @return DocumentBag
      */
     public function deserialize(array|string $data, string $class): object
     {
         $data = $this->assertArray($data);
+        $reader = ArrayReader::fromArray($data, source: static::class);
 
         return new DocumentBag(
             inputData: $this->decodeInputData($data['inputData'] ?? null),
-            parsedData: $data['parsedData'] ?? null,
-            normalizedData: $data['normalizedData'] ?? null,
-            libredteData: $data['libredteData'] ?? null,
-            options: $data['options'] ?? null,
-            xmlDocument: $this->objectFactory->create(
-                $data['xmlDocument'] ?? null,
+            parsedData: $reader->getArray('parsedData'),
+            normalizedData: $reader->getArray('normalizedData'),
+            libredteData: $reader->getArray('libredteData'),
+            options: $reader->get('options', ValueType::oneOf(ValueType::array(), ValueType::instanceOf(OptionsInterface::class))),
+            xmlDocument: ValueCaster::getObject(
+                $this->objectFactory->create(
+                    $reader->get('xmlDocument', ValueType::oneOf(ValueType::map(), ValueType::string())),
+                    XmlDocumentInterface::class,
+                ),
                 XmlDocumentInterface::class,
             ),
-            caf: $this->objectFactory->create(
-                $data['caf'] ?? null,
+            caf: ValueCaster::getObject(
+                $this->objectFactory->create(
+                    $reader->get('caf', ValueType::oneOf(ValueType::map(), ValueType::string())),
+                    CafInterface::class,
+                ),
                 CafInterface::class,
             ),
-            certificate: $this->objectFactory->create(
-                $data['certificate'] ?? null,
+            certificate: ValueCaster::getObject(
+                $this->objectFactory->create(
+                    $reader->get('certificate', ValueType::oneOf(ValueType::map(), ValueType::string())),
+                    CertificateInterface::class,
+                ),
                 CertificateInterface::class,
             ),
-            document: $this->objectFactory->create(
-                $data['document'] ?? null,
+            document: ValueCaster::getObject(
+                $this->objectFactory->create(
+                    $reader->get('document', ValueType::oneOf(ValueType::map(), ValueType::string())),
+                    DocumentInterface::class,
+                ),
                 DocumentInterface::class,
             ),
-            documentType: $this->objectFactory->create(
-                $data['documentType'] ?? null,
+            documentType: ValueCaster::getObject(
+                $this->objectFactory->create(
+                    $reader->get('documentType', ValueType::oneOf(ValueType::map(), ValueType::string())),
+                    TipoDocumentoInterface::class,
+                ),
                 TipoDocumentoInterface::class,
             ),
-            emisor: $this->objectFactory->create(
-                $data['emisor'] ?? null,
+            emisor: ValueCaster::getObject(
+                $this->objectFactory->create(
+                    $reader->get('emisor', ValueType::oneOf(ValueType::map(), ValueType::string())),
+                    EmisorInterface::class,
+                ),
                 EmisorInterface::class,
             ),
-            receptor: $this->objectFactory->create(
-                $data['receptor'] ?? null,
+            receptor: ValueCaster::getObject(
+                $this->objectFactory->create(
+                    $reader->get('receptor', ValueType::oneOf(ValueType::map(), ValueType::string())),
+                    ReceptorInterface::class,
+                ),
                 ReceptorInterface::class,
             ),
         );

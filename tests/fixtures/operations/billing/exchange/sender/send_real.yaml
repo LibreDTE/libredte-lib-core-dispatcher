@@ -39,7 +39,7 @@ request:
           businessMessageID: envio-real-001
           documents:
             - type: 'urn:fdc:libredte.cl:2025:doc:invoice'
-              content: '<EnvioDTE>Fixture de prueba de billing.exchange.sender::send</EnvioDTE>'
+              content: 'PEVudmlvRFRFPkZpeHR1cmUgZGUgcHJ1ZWJhIGRlIGJpbGxpbmcuZXhjaGFuZ2Uuc2VuZGVyOjpzZW5kPC9FbnZpb0RURT4='
 
 expect:
   success:
