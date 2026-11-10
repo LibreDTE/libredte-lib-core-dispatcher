@@ -96,16 +96,16 @@ class ExchangeBagDeserializer extends AbstractDeserializer
         return new Envelope(
             sender: $this->buildParty(Sender::class, $reader->requireArray('sender')),
             receiver: $this->buildParty(Receiver::class, $reader->requireArray('receiver')),
-            documentType: isset($data['documentType'])
-                ? DocumentType::from($reader->require('documentType', ValueType::oneOf(ValueType::int(), ValueType::string())))
+            documentType: isset($data['document_type'])
+                ? DocumentType::from($reader->require('document_type', ValueType::oneOf(ValueType::int(), ValueType::string())))
                 : DocumentType::B2B,
             process: isset($data['process'])
                 ? ProcessType::from($reader->require('process', ValueType::oneOf(ValueType::int(), ValueType::string())))
                 : ProcessType::BILLING,
-            businessMessageID: $reader->getString('businessMessageID'),
-            originalBusinessMessageID: $reader->getString('originalBusinessMessageID'),
-            creationDateAndTime: isset($data['creationDateAndTime'])
-                ? new DateTimeImmutable($reader->requireString('creationDateAndTime'))
+            businessMessageID: $reader->getString('business_message_id'),
+            originalBusinessMessageID: $reader->getString('original_business_message_id'),
+            creationDateAndTime: isset($data['creation_date_and_time'])
+                ? new DateTimeImmutable($reader->requireString('creation_date_and_time'))
                 : null,
             documents: array_map(
                 fn (array $documentData) => $this->buildDocument($documentData),
@@ -130,13 +130,13 @@ class ExchangeBagDeserializer extends AbstractDeserializer
 
         $identifier = new PartyIdentifier(
             value: $identifierReader->requireString('value'),
-            schemeId: $identifierReader->getString('schemeId', 'CL-RUT'),
+            schemeId: $identifierReader->getString('scheme_id', 'CL-RUT'),
         );
 
         $endpoints = array_map(
             fn (ArrayReader $endpoint) => new PartyEndpoint(
                 value: $endpoint->requireString('value'),
-                schemeId: $endpoint->getString('schemeId', 'EMAIL'),
+                schemeId: $endpoint->getString('scheme_id', 'EMAIL'),
             ),
             $reader->getArrayReaders('endpoints') ?? [],
         );

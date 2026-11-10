@@ -22,6 +22,6 @@ request:
 expect:
   success:
     value_contains:
-      tipoDocumento: 33
-      folioDesde: 1
-      folioHasta: 100
+      tipo_documento: 33
+      folio_desde: 1
+      folio_hasta: 100

@@ -24,20 +24,20 @@ request:
         - sender:
             identifier:
               value: '76192083-9'
-              schemeId: CL-RUT
+              scheme_id: CL-RUT
             endpoints:
               - value: emisor@example.com
-                schemeId: EMAIL
+                scheme_id: EMAIL
           receiver:
             identifier:
               value: '66666666-6'
-              schemeId: CL-RUT
+              scheme_id: CL-RUT
             endpoints:
               - value: cliente@example.com
-                schemeId: EMAIL
-          documentType: 'urn:fdc:libredte.cl:2025:doc:invoice'
+                scheme_id: EMAIL
+          document_type: 'urn:fdc:libredte.cl:2025:doc:invoice'
           process: 'urn:fdc:libredte.cl:2025:poacc:billing'
-          businessMessageID: envio-001
+          business_message_id: envio-001
           documents:
             - type: 'urn:fdc:libredte.cl:2025:doc:invoice'
               content: ''

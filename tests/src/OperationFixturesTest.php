@@ -84,7 +84,7 @@ use Symfony\Component\Yaml\Yaml;
  * esperado — a diferencia de `value_contains`, puede expresar cosas que un
  * path plano no puede: ausencia (`"length(renderings[?label=='cedible'])":
  * 0`), conteo exacto (`"length(renderings)": 2`) o filtros/proyecciones
- * (`"renderings[?label=='cedible'].mimeType | [0]": application/pdf`).
+ * (`"renderings[?label=='cedible'].mime_type | [0]": application/pdf`).
  * Reservado para esos casos — `value_contains` sigue siendo preferible para
  * comparar un valor puntual por path simple, es más fácil de leer.
  */

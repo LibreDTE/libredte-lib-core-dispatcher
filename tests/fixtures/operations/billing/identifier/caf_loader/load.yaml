@@ -17,4 +17,4 @@ request:
 expect:
   success:
     value_contains:
-      tipoDocumento: 33
+      tipo_documento: 33

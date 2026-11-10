@@ -187,6 +187,7 @@ final class FixtureContext
                     'RUTEmisor' => self::EMISOR_RUT,
                     'RznSoc' => self::EMISOR_RAZON_SOCIAL,
                     'GiroEmis' => 'Servicios',
+                    'Acteco' => 620100,
                     'DirOrigen' => 'Dirección 123',
                     'CmnaOrigen' => 'Santiago',
                 ],

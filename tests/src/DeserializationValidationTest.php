@@ -134,11 +134,11 @@ final class DeserializationValidationTest extends TestCase
             'envelopes' => [7 => [
                 'sender' => ['identifier' => ['value' => '76192083-9'], 'endpoints' => [4 => ['value' => 'sender@example.com']]],
                 'receiver' => ['identifier' => ['value' => '88888888-8']],
-                'documentType' => DocumentType::B2B->value,
+                'document_type' => DocumentType::B2B->value,
                 'process' => ProcessType::BILLING->value,
-                'businessMessageID' => 'message-123',
-                'originalBusinessMessageID' => 'original-123',
-                'creationDateAndTime' => '2026-10-29T12:34:56+00:00',
+                'business_message_id' => 'message-123',
+                'original_business_message_id' => 'original-123',
+                'creation_date_and_time' => '2026-10-29T12:34:56+00:00',
                 'documents' => [5 => [
                     'content' => base64_encode("<document>\x00</document>"),
                     'type' => DocumentType::B2B->value,

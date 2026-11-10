@@ -118,7 +118,7 @@ final class ServicesTest extends TestCase
             self::assertTrue($result->isSuccess());
             $value = $result->getValue();
             self::assertIsArray($value);
-            self::assertSame(46, $value['tipoDocumento']);
+            self::assertSame(46, $value['tipo_documento']);
         } finally {
             $filesystem->remove($directory);
         }

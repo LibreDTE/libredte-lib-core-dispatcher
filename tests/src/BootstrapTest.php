@@ -112,7 +112,7 @@ class BootstrapTest extends TestCase
 
         $this->assertTrue($result->isSuccess());
         $this->assertIsArray($result->getValue());
-        $this->assertSame(46, $result->getValue()['tipoDocumento']);
+        $this->assertSame(46, $result->getValue()['tipo_documento']);
     }
 
     public function testNeverThrowsAndReturnsAProblemDetailForAnUnknownOperation(): void
