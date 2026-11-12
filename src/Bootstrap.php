@@ -25,6 +25,7 @@ namespace libredte\lib\CoreDispatcher;
 use Derafu\BackboneDispatcher\Contract\SafeDispatcherInterface;
 use Derafu\BackboneDispatcher\Contract\SafeExplorerInterface;
 use Derafu\Kernel\Contract\EnvironmentInterface;
+use Derafu\Value\ValueCaster;
 use libredte\lib\Core\Application;
 
 /**
@@ -52,25 +53,21 @@ final class Bootstrap
         string $environment = EnvironmentInterface::PRODUCTION,
         bool $debug = false,
     ): SafeDispatcherInterface {
-        $dispatcher = Application::getInstance($environment, $debug)
-            ->getService(SafeDispatcherInterface::class)
-        ;
-
-        assert($dispatcher instanceof SafeDispatcherInterface);
-
-        return $dispatcher;
+        return ValueCaster::requireObject(
+            Application::getInstance($environment, $debug)
+                ->getService(SafeDispatcherInterface::class),
+            SafeDispatcherInterface::class
+        );
     }
 
     public static function bootExplorer(
         string $environment = EnvironmentInterface::PRODUCTION,
         bool $debug = false,
     ): SafeExplorerInterface {
-        $explorer = Application::getInstance($environment, $debug)
-            ->getService(SafeExplorerInterface::class)
-        ;
-
-        assert($explorer instanceof SafeExplorerInterface);
-
-        return $explorer;
+        return ValueCaster::requireObject(
+            Application::getInstance($environment, $debug)
+                ->getService(SafeExplorerInterface::class),
+            SafeExplorerInterface::class
+        );
     }
 }
