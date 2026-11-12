@@ -1,13 +1,12 @@
-# billing.exchange.sender::send (camino real, con credenciales)
+# billing.exchange.sender::send (camino real, contra un servidor de correo)
 #
 # A diferencia de send.yaml (credenciales vacías, siempre falla localmente
-# sin red), esta fixture usa MAIL_USERNAME/MAIL_PASSWORD reales — sin
-# configurar (tests/env-tests), el placeholder {{mailTransport}} entrega
-# `null` y el test se salta. Con credenciales reales, envía un correo real
-# por SMTP a la misma cuenta (nunca a un tercero: sender y receiver son el
-# mismo correo).
+# sin red), esta fixture envía de verdad por SMTP a un servidor GreenMail en
+# Docker (el mismo que usa libredte-lib-core en sus tests de correo). Se
+# levanta solo cuando una fixture usa un placeholder `mail*`. Sin Docker la
+# fixture falla, no se salta.
 description: >
-  Envía un sobre real por SMTP a la misma cuenta configurada en env-tests.
+  Envía un sobre por SMTP, de `ana` a `beto`, a un servidor de correo real en Docker.
 
 request:
   package: billing
@@ -18,28 +17,31 @@ request:
     bag:
       options:
         strategy: email.smtp
-        transport: "{{mailTransport}}"
+        transport: "{{mailSenderTransport}}"
       envelopes:
         - sender:
             identifier:
               value: '76192083-9'
               scheme_id: CL-RUT
             endpoints:
-              - value: "{{mailUsername}}"
+              - value: "{{mailSenderAddress}}"
                 scheme_id: EMAIL
           receiver:
             identifier:
               value: '76192083-9'
               scheme_id: CL-RUT
             endpoints:
-              - value: "{{mailUsername}}"
+              - value: "{{mailReceiverAddress}}"
                 scheme_id: EMAIL
           document_type: 'urn:fdc:libredte.cl:2025:doc:invoice'
           process: 'urn:fdc:libredte.cl:2025:poacc:billing'
           business_message_id: envio-real-001
           documents:
             - type: 'urn:fdc:libredte.cl:2025:doc:invoice'
-              content: 'PEVudmlvRFRFPkZpeHR1cmUgZGUgcHJ1ZWJhIGRlIGJpbGxpbmcuZXhjaGFuZ2Uuc2VuZGVyOjpzZW5kPC9FbnZpb0RURT4='
+              attachments:
+                - data: 'PEVudmlvRFRFPkZpeHR1cmUgZGUgcHJ1ZWJhIGRlIGJpbGxpbmcuZXhjaGFuZ2Uuc2VuZGVyOjpzZW5kPC9FbnZpb0RURT4='
+                  name: envio.xml
+                  type: application/xml
 
 expect:
   success:

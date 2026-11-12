@@ -1,0 +1,12 @@
+description: >
+  Construye un Emisor a partir de un mapa.
+
+body:
+  rut: '76192083-9'
+  razon_social: SASCO SpA
+  giro: Desarrollo de software
+
+test:
+  type: libredte\lib\Core\Package\Billing\Component\TradingParties\Contract\EmisorInterface
+  expect:
+    getRazonSocial(): SASCO SpA

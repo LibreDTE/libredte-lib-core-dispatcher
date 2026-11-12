@@ -61,7 +61,7 @@ class SiiRequestDeserializer extends AbstractDeserializer
                 ),
                 CertificateInterface::class,
             ),
-            options: $reader->get('options', ValueType::oneOf(ValueType::array(), ValueType::instanceOf(OptionsInterface::class)), []),
+            options: $reader->get('options', ValueType::oneOf(ValueType::map(), ValueType::instanceOf(OptionsInterface::class)), []),
         );
     }
 }

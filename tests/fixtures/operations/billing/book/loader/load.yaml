@@ -1,8 +1,7 @@
 # billing.book.loader::load
 #
 # Normaliza los datos crudos de un libro de ventas (mismo bag que
-# book/builder/build.yaml — comparten forma, ver nota en
-# libredte-lib-core/CLAUDE.md).
+# book/builder/build.yaml — comparten forma).
 description: >
   Normaliza los datos de entrada de un libro de ventas.
 

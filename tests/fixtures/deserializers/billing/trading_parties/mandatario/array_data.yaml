@@ -1,0 +1,12 @@
+description: >
+  Construye un Mandatario a partir de un mapa.
+
+body:
+  run: '11111111-1'
+  nombre: Juan Pérez
+  email: juan@example.com
+
+test:
+  type: libredte\lib\Core\Package\Billing\Component\TradingParties\Contract\MandatarioInterface
+  expect:
+    getNombre(): Juan Pérez

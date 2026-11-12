@@ -1,0 +1,13 @@
+description: >
+  Construye una solicitud al SII deserializando recursivamente el certificado.
+
+body:
+  certificate: "{{certificate}}"
+  options:
+    retries: 3
+
+test:
+  type: libredte\lib\Core\Package\Billing\Component\Integration\Contract\SiiRequestInterface
+  expect:
+    getCertificate(): {instanceof: Derafu\Certificate\Contract\CertificateInterface}
+    getRetries(): 3

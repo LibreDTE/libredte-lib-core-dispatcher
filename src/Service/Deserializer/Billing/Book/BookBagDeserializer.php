@@ -75,7 +75,7 @@ class BookBagDeserializer extends AbstractDeserializer
             inputData: $this->decodeInputData($data['inputData'] ?? []),
             caratula: $reader->get('caratula', ValueType::map(), []),
             detalle: $detalle,
-            options: $reader->get('options', ValueType::oneOf(ValueType::array(), ValueType::instanceOf(OptionsInterface::class))),
+            options: $reader->get('options', ValueType::oneOf(ValueType::map(), ValueType::instanceOf(OptionsInterface::class))),
             certificate: ValueCaster::getObject(
                 $this->objectFactory->create(
                     $reader->get('certificate', ValueType::oneOf(ValueType::map(), ValueType::string())),

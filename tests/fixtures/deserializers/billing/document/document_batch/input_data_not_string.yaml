@@ -1,0 +1,11 @@
+description: >
+  Rechaza un inputData que no es un string.
+
+body:
+  inputData:
+    no: string
+
+test:
+  type: libredte\lib\Core\Package\Billing\Component\Document\Contract\DocumentBatchInterface
+  failure:
+    exception: Derafu\BackboneDispatcher\Exception\UnsupportedDataTypeException

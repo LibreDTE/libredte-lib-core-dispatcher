@@ -1,0 +1,12 @@
+description: >
+  Rechaza un inputData en texto que no es base64 válido.
+
+body:
+  tipo: libro_ventas
+  inputData: 'Fecha;Total'
+
+test:
+  type: libredte\lib\Core\Package\Billing\Component\Book\Contract\BookBagInterface
+  failure:
+    exception: Derafu\BackboneDispatcher\Exception\UnsupportedDataTypeException
+    message: requiere el campo inputData codificado en base64 válido

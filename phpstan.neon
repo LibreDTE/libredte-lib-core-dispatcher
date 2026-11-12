@@ -1,6 +1,6 @@
 parameters:
     # Nivel de revisión, desde básico (1) a muy completo (10).
-    level: 9
+    level: 10
     # Directorios de código fuente que se revisarán.
     paths:
         - src

@@ -1,0 +1,9 @@
+description: >
+  Construye un certificado desde un archivo PKCS12 en base64 y su contraseña.
+
+body: "{{certificatePkcs12}}"
+
+test:
+  type: Derafu\Certificate\Contract\CertificateInterface
+  expect:
+    getName(): LibreDTE Dispatcher Test

@@ -1,0 +1,10 @@
+description: >
+  Rechaza un dato que no es un string.
+
+body:
+  not: a string
+
+test:
+  type: Derafu\Xml\Contract\XmlDocumentInterface
+  failure:
+    exception: Derafu\BackboneDispatcher\Exception\UnsupportedDataTypeException

@@ -24,6 +24,7 @@ namespace libredte\lib\CoreDispatcher\Service\Deserializer\Billing\TradingPartie
 
 use Derafu\BackboneDispatcher\Abstract\AbstractDeserializer;
 use libredte\lib\Core\Package\Billing\Component\TradingParties\Contract\EmisorFactoryInterface;
+use libredte\lib\CoreDispatcher\Service\Deserializer\Trait\ContribuyenteListsTrait;
 
 /**
  * Construye un `Emisor` a partir de datos de un arreglo, delegando en el
@@ -31,6 +32,8 @@ use libredte\lib\Core\Package\Billing\Component\TradingParties\Contract\EmisorFa
  */
 class EmisorDeserializer extends AbstractDeserializer
 {
+    use ContribuyenteListsTrait;
+
     public function __construct(
         private readonly EmisorFactoryInterface $emisorFactory,
     ) {
@@ -43,6 +46,6 @@ class EmisorDeserializer extends AbstractDeserializer
     {
         $data = $this->assertArray($data);
 
-        return $this->emisorFactory->create($data);
+        return $this->emisorFactory->create($this->withFirstOfLists($data));
     }
 }

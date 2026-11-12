@@ -66,6 +66,7 @@ final class CertificateFixture
         );
 
         Assert::assertInstanceOf(OpenSSLCertificateSigningRequest::class, $csr);
+        Assert::assertInstanceOf(OpenSSLAsymmetricKey::class, $privateKey);
 
         $certificate = openssl_csr_sign($csr, null, $privateKey, 365, [
             'digest_alg' => 'sha256',
@@ -74,6 +75,8 @@ final class CertificateFixture
         Assert::assertInstanceOf(OpenSSLCertificate::class, $certificate);
         Assert::assertTrue(openssl_x509_export($certificate, $certificatePem));
         Assert::assertTrue(openssl_pkey_export($privateKey, $privateKeyPem));
+        Assert::assertIsString($certificatePem);
+        Assert::assertIsString($privateKeyPem);
 
         return [
             'certificate' => $certificatePem,

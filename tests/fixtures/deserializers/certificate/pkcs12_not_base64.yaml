@@ -1,0 +1,12 @@
+description: >
+  Rechaza el PKCS12 que no está en base64 válido.
+
+body:
+  data: 'no es base64!'
+  password: clave
+
+test:
+  type: Derafu\Certificate\Contract\CertificateInterface
+  failure:
+    exception: Derafu\BackboneDispatcher\Exception\UnsupportedDataTypeException
+    message: requiere el campo data codificado en base64 válido

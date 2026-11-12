@@ -1,0 +1,10 @@
+description: >
+  Decodifica un contenido binario.
+
+body:
+  inputData: AAECUEv//g==
+
+test:
+  type: libredte\lib\Core\Package\Billing\Component\Document\Contract\DocumentBatchInterface
+  expect:
+    getInputData(): !!binary AAECUEv//g==

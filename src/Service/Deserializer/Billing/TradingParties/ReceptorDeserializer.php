@@ -24,6 +24,7 @@ namespace libredte\lib\CoreDispatcher\Service\Deserializer\Billing\TradingPartie
 
 use Derafu\BackboneDispatcher\Abstract\AbstractDeserializer;
 use libredte\lib\Core\Package\Billing\Component\TradingParties\Contract\ReceptorFactoryInterface;
+use libredte\lib\CoreDispatcher\Service\Deserializer\Trait\ContribuyenteListsTrait;
 
 /**
  * Construye un `Receptor` a partir de datos de un arreglo, delegando en el
@@ -31,6 +32,8 @@ use libredte\lib\Core\Package\Billing\Component\TradingParties\Contract\Receptor
  */
 class ReceptorDeserializer extends AbstractDeserializer
 {
+    use ContribuyenteListsTrait;
+
     public function __construct(
         private readonly ReceptorFactoryInterface $receptorFactory,
     ) {
@@ -43,6 +46,6 @@ class ReceptorDeserializer extends AbstractDeserializer
     {
         $data = $this->assertArray($data);
 
-        return $this->receptorFactory->create($data);
+        return $this->receptorFactory->create($this->withFirstOfLists($data));
     }
 }

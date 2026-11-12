@@ -67,7 +67,7 @@ class DocumentBatchDeserializer extends AbstractDeserializer
             inputData: isset($data['inputData'])
                 ? $this->decodeBase64($data['inputData'], 'inputData')
                 : null,
-            options: $reader->get('options', ValueType::oneOf(ValueType::array(), ValueType::instanceOf(OptionsInterface::class))),
+            options: $reader->get('options', ValueType::oneOf(ValueType::map(), ValueType::instanceOf(OptionsInterface::class))),
         );
 
         $batch->setEmisor(ValueCaster::getObject(

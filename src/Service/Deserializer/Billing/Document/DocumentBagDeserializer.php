@@ -43,9 +43,10 @@ use libredte\lib\CoreDispatcher\Service\Deserializer\Trait\Base64DecoderTrait;
  * recursivamente sus campos anidados (`xmlDocument`, `caf`, `certificate`,
  * `emisor`, `receptor`) a través del `ObjectFactoryInterface` inyectado.
  *
- * `document` y `documentType` no se construyen aquí: sus propios
- * deserializadores todavía no están implementados, así que siempre se pasan
- * como `null`.
+ * `document` y `documentType` también se piden al `ObjectFactoryInterface`,
+ * pero no tienen un deserializador registrado: si no vienen en el arreglo
+ * quedan en `null`, y si vienen (como mapa o como string) se rechazan con
+ * `NoDeserializerFoundException`.
  */
 class DocumentBagDeserializer extends AbstractDeserializer
 {
@@ -66,12 +67,19 @@ class DocumentBagDeserializer extends AbstractDeserializer
         $data = $this->assertArray($data);
         $reader = ArrayReader::fromArray($data, source: static::class);
 
+        // Un `inputData` en arreglo es el documento como objeto JSON, es decir,
+        // un mapa. Una lista no es un documento.
+        $inputData = $this->decodeInputData($data['inputData'] ?? null);
+        if (is_array($inputData)) {
+            $inputData = ValueType::map()->parse($inputData, 'inputData', static::class);
+        }
+
         return new DocumentBag(
-            inputData: $this->decodeInputData($data['inputData'] ?? null),
-            parsedData: $reader->getArray('parsedData'),
-            normalizedData: $reader->getArray('normalizedData'),
-            libredteData: $reader->getArray('libredteData'),
-            options: $reader->get('options', ValueType::oneOf(ValueType::array(), ValueType::instanceOf(OptionsInterface::class))),
+            inputData: $inputData,
+            parsedData: $reader->getMap('parsedData'),
+            normalizedData: $reader->getMap('normalizedData'),
+            libredteData: $reader->getMap('libredteData'),
+            options: $reader->get('options', ValueType::oneOf(ValueType::map(), ValueType::instanceOf(OptionsInterface::class))),
             xmlDocument: ValueCaster::getObject(
                 $this->objectFactory->create(
                     $reader->get('xmlDocument', ValueType::oneOf(ValueType::map(), ValueType::string())),

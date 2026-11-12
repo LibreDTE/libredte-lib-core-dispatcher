@@ -1,0 +1,11 @@
+description: >
+  Rechaza un inputData en texto que no es base64 válido.
+
+body:
+  inputData: '<?xml version="1.0"?><DTE/>'
+
+test:
+  type: libredte\lib\Core\Package\Billing\Component\Document\Contract\DocumentBagInterface
+  failure:
+    exception: Derafu\BackboneDispatcher\Exception\UnsupportedDataTypeException
+    message: requiere el campo inputData codificado en base64 válido

@@ -25,19 +25,19 @@ namespace libredte\lib\TestsCoreDispatcher;
 use Derafu\Array\ArrayReader;
 use Derafu\BackboneDispatcher\Contract\OperationResultInterface;
 use Derafu\BackboneDispatcher\Contract\SafeDispatcherInterface;
-use Derafu\BackboneDispatcher\ValueObject\OperationRequest;
 use Derafu\Selector\Selector;
 use Derafu\Value\ValueType;
 use FilesystemIterator;
 use libredte\lib\CoreDispatcher\Bootstrap;
 use libredte\lib\TestsCoreDispatcher\Fixture\FixtureContext;
+use libredte\lib\TestsCoreDispatcher\Fixture\FixturePlaceholderResolver;
 use libredte\lib\TestsCoreDispatcher\Fixture\FixturePlaceholderUnavailableException;
-use PHPUnit\Framework\Attributes\CoversNothing;
+use libredte\lib\TestsCoreDispatcher\Fixture\FixtureRequest;
+use PHPUnit\Framework\Attributes\CoversNamespace;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
-use RuntimeException;
 use SplFileInfo;
 use Symfony\Component\Yaml\Yaml;
 
@@ -47,17 +47,16 @@ use Symfony\Component\Yaml\Yaml;
  * `tests/fixtures/operations/**\/*.yaml` — un archivo por `#[Operation]` de
  * `libredte-lib-core`.
  *
- * Deliberadamente `#[CoversNothing]`: esto es un smoke test de integración
- * de punta a punta que atraviesa decenas de workers/jobs/estrategias reales
- * según qué operación se esté probando — enumerar cada clase tocada vía
- * `#[UsesClass]` (lo que exige `beStrictAboutCoverageMetadata` de
- * `phpunit.xml` para cualquier test con cobertura) sería impráctico y
- * frágil (se rompería con cualquier cambio interno de `libredte-lib-core`
- * que no afecte el comportamiento de la operación en sí).
+ * Declara la cobertura de todo `src/` del dispatcher (`CoversNamespace`): según
+ * la operación que se pruebe atraviesa el `Bootstrap`, el `SafeDispatcher` y
+ * los deserializadores, y el conjunto de casos lo define el directorio de
+ * fixtures, no esta clase.
  *
- * Formato de cada fixture, ver `CLAUDE.md` para el diseño completo:
+ * Formato de cada fixture:
  *
  *   description: string
+ *   before:             # Opcional: operaciones que se despachan antes, cada una
+ *     - package: ...  # con la misma forma que `request`. Deben tener éxito.
  *   request:
  *     package: string
  *     component: string
@@ -88,17 +87,25 @@ use Symfony\Component\Yaml\Yaml;
  * Reservado para esos casos — `value_contains` sigue siendo preferible para
  * comparar un valor puntual por path simple, es más fácil de leer.
  */
-#[CoversNothing]
+#[CoversNamespace('libredte\lib\CoreDispatcher')]
 class OperationFixturesTest extends TestCase
 {
     private static SafeDispatcherInterface $dispatcher;
 
     private static FixtureContext $context;
 
+    private static FixturePlaceholderResolver $placeholders;
+
     public static function setUpBeforeClass(): void
     {
         self::$dispatcher = Bootstrap::boot('test', true);
         self::$context = new FixtureContext();
+        self::$placeholders = new FixturePlaceholderResolver(self::$context);
+    }
+
+    public static function tearDownAfterClass(): void
+    {
+        self::$context->shutdown();
     }
 
     /**
@@ -124,68 +131,41 @@ class OperationFixturesTest extends TestCase
         }
     }
 
+    protected function setUp(): void
+    {
+        self::$context->resetMail();
+    }
+
     #[DataProvider('fixtureProvider')]
     public function testOperationFixture(string $path): void
     {
         $fixture = ArrayReader::fromValue(Yaml::parseFile($path), source: $path);
-        $requestData = $fixture->requireReader('request');
 
         try {
-            $parameters = $this->resolvePlaceholders($requestData->get('parameters', ValueType::map(), []));
+            foreach ($fixture->get('before', ValueType::arrayOf(ValueType::map()), []) as $step) {
+                $result = $this->dispatch(ArrayReader::fromArray($step), $path);
+                $this->assertTrue($result->isSuccess(), 'A "before" operation failed: ' . $this->describeFailure($result));
+            }
+
+            $result = $this->dispatch($fixture->requireReader('request'), $path);
         } catch (FixturePlaceholderUnavailableException $e) {
             $this->markTestSkipped($e->getMessage());
         }
-
-        $request = new OperationRequest(
-            $requestData->requireString('package'),
-            $requestData->requireString('component'),
-            $requestData->requireString('worker'),
-            $requestData->requireString('operation'),
-            ValueType::map()->parse($parameters, 'request.parameters', $path),
-        );
-
-        $result = self::$dispatcher->dispatch($request);
 
         $this->assertExpectation($fixture->get('expect', ValueType::map(), []), $result);
     }
 
     /**
-     * Reemplaza recursivamente cualquier string `"{{método}}"` por el
-     * resultado de invocar ese método (sin argumentos) en `FixtureContext`.
-     * Si el método devuelve `null`, lanza
-     * `FixturePlaceholderUnavailableException` — `testOperationFixture()` la
-     * captura para saltar el test — en vez de devolver `null` silenciosamente
-     * y señalarlo mutando estado de la instancia.
+     * Despacha la operación descrita por `$requestData`, resolviendo antes
+     * los placeholders de `parameters`.
      *
      * @throws FixturePlaceholderUnavailableException
      */
-    private function resolvePlaceholders(mixed $value): mixed
+    private function dispatch(ArrayReader $requestData, string $path): OperationResultInterface
     {
-        if (is_array($value)) {
-            return array_map(fn (mixed $item) => $this->resolvePlaceholders($item), $value);
-        }
-
-        if (is_string($value) && preg_match('/^\{\{(\w+)\}\}$/', $value, $matches) === 1) {
-            $method = $matches[1];
-
-            if (!method_exists(self::$context, $method)) {
-                throw new RuntimeException(sprintf(
-                    'Fixture placeholder "{{%s}}" does not exist on %s.',
-                    $method,
-                    FixtureContext::class,
-                ));
-            }
-
-            $resolved = self::$context->{$method}();
-
-            if ($resolved === null) {
-                throw new FixturePlaceholderUnavailableException($method);
-            }
-
-            return $resolved;
-        }
-
-        return $value;
+        return self::$dispatcher->dispatch(
+            FixtureRequest::create($requestData, self::$placeholders, $path)
+        );
     }
 
     /**

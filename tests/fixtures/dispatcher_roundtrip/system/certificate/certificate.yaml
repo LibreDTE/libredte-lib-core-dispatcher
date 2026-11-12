@@ -1,0 +1,25 @@
+# Certificado: `certificate.loader::load` recibe un certificado y devuelve un
+# certificado. Su resultado, con `cert`, `pkey` y los datos del certificado, se
+# vuelve a enviar a la misma operación. Los dos resultados deben ser iguales.
+description: >
+  Carga un certificado autofirmado de prueba y reenvía su resultado a la misma
+  operación.
+
+request:
+  package: system
+  component: certificate
+  worker: loader
+  operation: load
+  parameters:
+    certificate: "{{certificate}}"
+
+then:
+  package: system
+  component: certificate
+  worker: loader
+  operation: load
+  parameter: certificate
+
+expect:
+  is_active: true
+  chain: []

@@ -64,6 +64,15 @@ class CertificateDeserializer extends AbstractDeserializer
             );
         }
 
+        // Salida de `Certificate::toArray()`: `cert`, `pkey` y `chain`.
+        if (!empty($data['cert']) && !empty($data['pkey'])) {
+            return $this->certificateLoader->loadFromKeys(
+                certificate: $reader->requireString('cert'),
+                privateKey: $reader->requireString('pkey'),
+                chain: $reader->getStringList('chain') ?? [],
+            );
+        }
+
         throw new InvalidArgumentException('Se requieren los datos del certificado (data y password) o sus llaves (certificate y privateKey).');
     }
 }

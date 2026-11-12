@@ -25,6 +25,7 @@ namespace libredte\lib\TestsCoreDispatcher\Fixture;
 use Derafu\Certificate\Contract\CertificateInterface;
 use Derafu\Certificate\Service\CertificateFaker;
 use Derafu\Certificate\Service\CertificateLoader;
+use Derafu\Mail\Testing\GreenMailServer;
 use Derafu\Xml\Contract\XmlDocumentInterface;
 use libredte\lib\Core\Application;
 use libredte\lib\Core\Package\Billing\Component\Book\Contract\BookInterface;
@@ -64,6 +65,18 @@ use Throwable;
  * (`CertificateFaker`) cuando no hay uno real configurado — ver
  * `siiCertificateObject()`.
  *
+ * Datos de prueba: ningún fixture contiene datos sensibles ni de terceros.
+ * Las identidades (RUT y razón social) son las ya públicas y commiteadas en
+ * `libredte-lib-core`: `76192083-9` (SASCO SpA) como emisor canónico,
+ * `66666666-6` como contraparte genérica y, cuando se necesitan más, RUTs
+ * sintéticos que ya estén commiteados allí (por ejemplo `12345678-9`,
+ * `11111111-1`, `55555555-5`, `77777777-7`, el `60803000-K` del SII o los del
+ * ejemplo oficial del SII). Los CAF y los certificados nunca se leen de disco
+ * ni se commitean: se generan en cada corrida (`CafFakerWorker` y
+ * `CertificateFixture`). Los archivos de `libredte-lib-core` que están en su
+ * `.gitignore` (por ejemplo `tests/fixtures/caf/*.xml`) no se copian ni se
+ * usan como referencia.
+ *
  * Usa directamente los workers reales de `libredte-lib-core` (vía
  * `Application::getInstance('test', true)`), nunca el `SafeDispatcher` —
  * evita depender circularmente de las mismas operaciones que se están
@@ -72,9 +85,9 @@ use Throwable;
 final class FixtureContext
 {
     /**
-     * Identidad de prueba pública y ya commiteada en `libredte-lib-core`
-     * (ver auditoría de RUTs en `CLAUDE.md`), reutilizada acá como emisor
-     * canónico de todos los fixtures que necesiten uno.
+     * Identidad de prueba pública y ya commiteada en `libredte-lib-core`,
+     * reutilizada acá como emisor canónico de todos los fixtures que
+     * necesiten uno.
      */
     public const string EMISOR_RUT = '76192083-9';
 
@@ -123,6 +136,8 @@ final class FixtureContext
 
     private ?Aec $aec = null;
 
+    private ?GreenMailServer $mailServer = null;
+
     /**
      * Certificado digital autofirmado, real pero desechable (nunca se
      * commitea a disco) — ver `CertificateFixture::generate()`. Forma
@@ -134,6 +149,30 @@ final class FixtureContext
     public function certificate(): array
     {
         return $this->certificatePair ??= CertificateFixture::generate(self::EMISOR_RUT);
+    }
+
+    /**
+     * El mismo certificado fresco de `certificate()`, como un archivo PKCS12
+     * con su contraseña: la otra forma que acepta `CertificateDeserializer`.
+     *
+     * @return array{data: string, password: string} `data` en base64.
+     */
+    public function certificatePkcs12(): array
+    {
+        $pair = $this->certificate();
+
+        Assert::assertTrue(openssl_pkcs12_export(
+            $pair['certificate'],
+            $pkcs12,
+            $pair['privateKey'],
+            'i_love_libredte',
+        ));
+        Assert::assertIsString($pkcs12);
+
+        return [
+            'data' => base64_encode($pkcs12),
+            'password' => 'i_love_libredte',
+        ];
     }
 
     /**
@@ -157,7 +196,7 @@ final class FixtureContext
     /**
      * CAF (Código de Autorización de Folios) fresco para el emisor
      * canónico, generado en tiempo de test — nunca se commitea un CAF real
-     * a disco (ver política de datos sensibles en `CLAUDE.md`).
+     * a disco.
      *
      * @return string XML del CAF, codificado en base64.
      */
@@ -738,57 +777,69 @@ final class FixtureContext
     }
 
     /**
-     * Credenciales SMTP/IMAP para los fixtures `*_real.yaml` de
-     * `Exchange` (`sender::send`/`receiver::receive`) — a diferencia de
-     * `siiCertificateRequest()`, no hay un valor falso de respaldo: el host
-     * SMTP/IMAP por defecto es Gmail real (no un ambiente de
-     * certificación/sandbox como el del SII), así que sin
-     * `MAIL_USERNAME`/`MAIL_PASSWORD` configurados se entrega `null` y el
-     * fixture que lo use se salta (`FixturePlaceholderUnavailableException`).
+     * Transport SMTP del usuario `ana` del servidor de correo de prueba.
      *
-     * @return array{username: string, password: string}|null
+     * @return array<string, mixed>
      */
-    public function mailTransport(): ?array
+    public function mailSenderTransport(): array
     {
-        $username = (string) getenv('MAIL_USERNAME');
-        $password = (string) getenv('MAIL_PASSWORD');
-
-        if ($username === '' || $password === '') {
-            return null;
-        }
-
-        return [
-            'username' => $username,
-            'password' => $password,
-        ];
+        return $this->mailServer()->smtpTransport('ana');
     }
 
     /**
-     * Correo de `MAIL_USERNAME` — usado como remitente y destinatario en
-     * `sender::send_real.yaml` (se manda un correo real a la misma cuenta,
-     * nunca a un tercero). `null` si no está configurado, igual que
-     * `mailTransport()`.
+     * Dirección de correo de `ana`, el usuario que envía.
      */
-    public function mailUsername(): ?string
+    public function mailSenderAddress(): string
     {
-        $username = (string) getenv('MAIL_USERNAME');
-
-        return $username !== '' ? $username : null;
+        return 'ana@' . GreenMailServer::DOMAIN;
     }
 
     /**
-     * Contraseña de `MAIL_PASSWORD` — usada junto a `mailUsername()` en
-     * `receiver::receive_real.yaml` para poder agregar, además de las
-     * credenciales, opciones de búsqueda no destructivas
-     * (`search.markAsSeen: false`) sin depender del objeto completo que
-     * entrega `mailTransport()`. `null` si no está configurado, igual que
-     * `mailTransport()`.
+     * Transport IMAP del usuario `beto` del servidor de correo de prueba.
+     *
+     * @return array<string, mixed>
      */
-    public function mailPassword(): ?string
+    public function mailReceiverTransport(): array
     {
-        $password = (string) getenv('MAIL_PASSWORD');
+        return $this->mailServer()->imapTransport('beto');
+    }
 
-        return $password !== '' ? $password : null;
+    /**
+     * Dirección de correo de `beto`, el usuario que recibe.
+     */
+    public function mailReceiverAddress(): string
+    {
+        return 'beto@' . GreenMailServer::DOMAIN;
+    }
+
+    /**
+     * Deja vacíos los buzones del servidor de correo de prueba, si algún
+     * fixture ya lo levantó. Se llama antes de cada fixture para que ninguno
+     * dependa de los correos que dejó otro.
+     */
+    public function resetMail(): void
+    {
+        $this->mailServer?->purge();
+    }
+
+    /**
+     * Detiene el servidor de correo de prueba, si algún fixture lo levantó.
+     */
+    public function shutdown(): void
+    {
+        $this->mailServer?->stop();
+        $this->mailServer = null;
+    }
+
+    /**
+     * Servidor GreenMail en Docker, el mismo que usa `libredte-lib-core` en
+     * sus tests de correo. Se levanta la primera vez que un fixture pide un
+     * valor de correo: los demás fixtures no pagan su costo. Sin Docker lanza
+     * una excepción (el fixture falla, no se salta).
+     */
+    private function mailServer(): GreenMailServer
+    {
+        return $this->mailServer ??= GreenMailServer::start();
     }
 
     private function siiCertificateObject(): CertificateInterface

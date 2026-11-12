@@ -1,0 +1,31 @@
+# Receptor enviado con los nombres de los campos del XML del SII (RUTRecep,
+# RznSocRecep, NumId...). La salida serializada los entrega con nombres en
+# snake_case, y esa salida se puede volver a recibir.
+description: >
+  Receptor enviado con los nombres de campo del SII.
+
+body:
+  RUTRecep: '55555555-5'
+  RznSocRecep: Cliente Extranjero
+  GiroRecep: Comercio
+  Contacto: '+56987654321'
+  CorreoRecep: cliente@example.com
+  DirRecep: Calle Extranjera 1
+  CmnaRecep: Santiago
+  CiudadRecep: Santiago
+  CdgIntRecep: C-003
+  Nacionalidad: AR
+  NumId: ABC-67890
+
+test:
+  type: libredte\lib\Core\Package\Billing\Component\TradingParties\Contract\ReceptorInterface
+  expect:
+    rut: '55555555-5'
+    razon_social: Cliente Extranjero
+    giro: Comercio
+    telefonos.0: '+56987654321'
+    email: cliente@example.com
+    direccion: Calle Extranjera 1
+    codigo_interno: C-003
+    nacionalidad: AR
+    identificador_extranjero: ABC-67890

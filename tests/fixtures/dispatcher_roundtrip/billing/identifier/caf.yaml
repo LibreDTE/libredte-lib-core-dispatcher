@@ -1,0 +1,25 @@
+# CAF: `caf_loader::load` recibe el XML en base64 y entrega el CAF; su clave
+# `xml` (también en base64) se reenvía a `caf_validator::validate`, que recibe
+# un CAF y devuelve un CAF. Los dos resultados deben ser iguales.
+description: >
+  Carga un CAF de una factura afecta y lo reenvía a la validación del CAF.
+
+request:
+  package: billing
+  component: identifier
+  worker: caf_loader
+  operation: load
+  parameters:
+    xml: "{{cafFacturaAfecta}}"
+
+then:
+  package: billing
+  component: identifier
+  worker: caf_validator
+  operation: validate
+  parameter: caf
+  feed: xml
+
+expect:
+  tipo_documento: 33
+  emisor.rut: '76192083-9'

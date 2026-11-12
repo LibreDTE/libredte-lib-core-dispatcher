@@ -1,0 +1,10 @@
+description: >
+  Decodifica de base64 un inputData en texto (XML en ISO-8859-1).
+
+body:
+  inputData: PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iSVNPLTg4NTktMSI/PjxEVEU+VGVjbm9sb2ftYTwvRFRFPg==
+
+test:
+  type: libredte\lib\Core\Package\Billing\Component\Document\Contract\DocumentBagInterface
+  expect:
+    getInputData(): !!binary PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iSVNPLTg4NTktMSI/PjxEVEU+VGVjbm9sb2ftYTwvRFRFPg==

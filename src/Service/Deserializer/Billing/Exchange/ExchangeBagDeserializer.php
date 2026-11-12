@@ -76,9 +76,9 @@ class ExchangeBagDeserializer extends AbstractDeserializer
         $data = $this->assertArray($data);
 
         $reader = ArrayReader::fromArray($data, source: static::class);
-        $bag = new ExchangeBag($reader->get('options', ValueType::oneOf(ValueType::array(), ValueType::instanceOf(OptionsInterface::class)), []));
+        $bag = new ExchangeBag($reader->get('options', ValueType::oneOf(ValueType::map(), ValueType::instanceOf(OptionsInterface::class)), []));
 
-        foreach ($reader->getArrayOf('envelopes', ValueType::array()) ?? [] as $envelopeData) {
+        foreach ($reader->getArrayOf('envelopes', ValueType::map()) ?? [] as $envelopeData) {
             $bag->addEnvelope($this->buildEnvelope($envelopeData));
         }
 
@@ -86,7 +86,7 @@ class ExchangeBagDeserializer extends AbstractDeserializer
     }
 
     /**
-     * @param array<array-key, mixed> $data Datos recibidos sin validar.
+     * @param array<string, mixed> $data Datos recibidos sin validar.
      */
     private function buildEnvelope(array $data): Envelope
     {
@@ -94,8 +94,8 @@ class ExchangeBagDeserializer extends AbstractDeserializer
         $reader = ArrayReader::fromArray($data, source: static::class);
 
         return new Envelope(
-            sender: $this->buildParty(Sender::class, $reader->requireArray('sender')),
-            receiver: $this->buildParty(Receiver::class, $reader->requireArray('receiver')),
+            sender: $this->buildParty(Sender::class, $reader->requireMap('sender')),
+            receiver: $this->buildParty(Receiver::class, $reader->requireMap('receiver')),
             documentType: isset($data['document_type'])
                 ? DocumentType::from($reader->require('document_type', ValueType::oneOf(ValueType::int(), ValueType::string())))
                 : DocumentType::B2B,
@@ -109,9 +109,9 @@ class ExchangeBagDeserializer extends AbstractDeserializer
                 : null,
             documents: array_map(
                 fn (array $documentData) => $this->buildDocument($documentData),
-                $reader->getArrayOf('documents', ValueType::array()) ?? [],
+                $reader->getIndexedOf('documents', ValueType::map()) ?? [],
             ),
-            metadata: $reader->get('metadata', ValueType::oneOf(ValueType::array(), ValueType::instanceOf(BagInterface::class)), []),
+            metadata: $reader->get('metadata', ValueType::oneOf(ValueType::map(), ValueType::instanceOf(BagInterface::class)), []),
         );
     }
 
@@ -119,7 +119,7 @@ class ExchangeBagDeserializer extends AbstractDeserializer
      * @template T of PartyInterface
      * @param class-string<T> $partyClass `Sender::class` o `Receiver::class`
      * — ambas comparten el mismo constructor heredado de `AbstractParty`.
-     * @param array<array-key, mixed> $data Datos recibidos sin validar.
+     * @param array<string, mixed> $data Datos recibidos sin validar.
      * @return T
      */
     private function buildParty(string $partyClass, array $data): PartyInterface
@@ -145,7 +145,7 @@ class ExchangeBagDeserializer extends AbstractDeserializer
     }
 
     /**
-     * @param array<array-key, mixed> $data Datos recibidos sin validar.
+     * @param array<string, mixed> $data Datos recibidos sin validar.
      */
     private function buildDocument(array $data): Document
     {
@@ -157,17 +157,17 @@ class ExchangeBagDeserializer extends AbstractDeserializer
                 : '',
             attachments: array_map(
                 fn (array $attachmentData) => $this->buildAttachment($attachmentData),
-                $reader->getArrayOf('attachments', ValueType::array()) ?? [],
+                $reader->getIndexedOf('attachments', ValueType::map()) ?? [],
             ),
             type: isset($data['type'])
                 ? DocumentType::from($reader->require('type', ValueType::oneOf(ValueType::int(), ValueType::string())))
                 : DocumentType::B2B,
-            metadata: $reader->get('metadata', ValueType::oneOf(ValueType::array(), ValueType::instanceOf(BagInterface::class)), []),
+            metadata: $reader->get('metadata', ValueType::oneOf(ValueType::map(), ValueType::instanceOf(BagInterface::class)), []),
         );
     }
 
     /**
-     * @param array<array-key, mixed> $data Datos recibidos sin validar.
+     * @param array<string, mixed> $data Datos recibidos sin validar.
      */
     private function buildAttachment(array $data): Attachment
     {

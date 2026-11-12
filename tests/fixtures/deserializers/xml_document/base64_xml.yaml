@@ -1,0 +1,9 @@
+description: >
+  Construye un XmlDocument desde un XML en base64.
+
+body: "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iSVNPLTg4NTktMSI/PjxSb290PjxWYWx1ZT4xPC9WYWx1ZT48L1Jvb3Q+"
+
+test:
+  type: Derafu\Xml\Contract\XmlDocumentInterface
+  expect:
+    getName(): Root

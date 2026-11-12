@@ -1,0 +1,10 @@
+description: >
+  Rechaza un inputData que no es base64 válido.
+
+body:
+  inputData: 'esto no es base64!'
+
+test:
+  type: libredte\lib\Core\Package\Billing\Component\Document\Contract\DocumentBatchInterface
+  failure:
+    exception: Derafu\BackboneDispatcher\Exception\UnsupportedDataTypeException

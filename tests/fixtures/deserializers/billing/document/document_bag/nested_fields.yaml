@@ -1,0 +1,21 @@
+description: >
+  Deserializa recursivamente los campos anidados (CAF, certificado, emisor y receptor).
+
+body:
+  caf: "{{cafFacturaAfecta}}"
+  certificate: "{{certificate}}"
+  emisor:
+    rut: '76192083-9'
+    razon_social: SASCO SpA
+  receptor:
+    rut: '66666666-6'
+    razon_social: Cliente de Prueba
+
+test:
+  type: libredte\lib\Core\Package\Billing\Component\Document\Contract\DocumentBagInterface
+  expect:
+    getCaf(): {instanceof: libredte\lib\Core\Package\Billing\Component\Identifier\Contract\CafInterface}
+    getCertificate(): {instanceof: Derafu\Certificate\Contract\CertificateInterface}
+    getEmisor(): {instanceof: libredte\lib\Core\Package\Billing\Component\TradingParties\Contract\EmisorInterface}
+    getReceptor(): {instanceof: libredte\lib\Core\Package\Billing\Component\TradingParties\Contract\ReceptorInterface}
+    getXmlDocument(): null

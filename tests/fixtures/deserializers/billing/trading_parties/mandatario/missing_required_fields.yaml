@@ -1,0 +1,9 @@
+description: >
+  La validación de la factory por campos requeridos faltantes se propaga.
+
+body: {}
+
+test:
+  type: libredte\lib\Core\Package\Billing\Component\TradingParties\Contract\MandatarioInterface
+  failure:
+    exception: LogicException

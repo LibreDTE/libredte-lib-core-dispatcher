@@ -2,8 +2,7 @@
 #
 # Construye un libro de ventas (mensual) a partir de un detalle mínimo. La
 # carátula incluye `RutEmisorLibro` explícito — sin él, la construcción
-# revienta (ver corrección del `#[Operation]` de este método, motivada
-# exactamente por este fixture, en libredte-lib-core/CLAUDE.md).
+# falla.
 description: >
   Construye un libro de ventas con un documento afecto.
 

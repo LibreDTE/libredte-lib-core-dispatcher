@@ -1,0 +1,26 @@
+# Receptor con actividad económica y teléfono. La salida serializada entrega
+# `actividades_economicas` y `telefonos` como listas, y también se pueden
+# volver a recibir.
+description: >
+  Receptor con sus datos, actividad económica y teléfono.
+
+body:
+  rut: '66666666-6'
+  razon_social: Cliente de Prueba
+  giro: Comercio
+  actividad_economica: 471100
+  telefono: '+56987654321'
+  email: cliente@example.com
+  direccion: Avenida 456
+  comuna: Providencia
+  ciudad: Santiago
+  codigo_interno: C-001
+
+test:
+  type: libredte\lib\Core\Package\Billing\Component\TradingParties\Contract\ReceptorInterface
+  expect:
+    rut: '66666666-6'
+    razon_social: Cliente de Prueba
+    actividades_economicas.0: 471100
+    telefonos.0: '+56987654321'
+    codigo_interno: C-001

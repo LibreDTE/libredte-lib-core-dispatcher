@@ -1,0 +1,17 @@
+description: >
+  Si vienen los nombres del SII (Acteco, Telefono), ganan sobre la lista.
+
+body:
+  RUTEmisor: '76192083-9'
+  rut: '76192083-9'
+  razon_social: SASCO SpA
+  Acteco: 471100
+  actividades_economicas: [620200]
+  Telefono: '+56922222222'
+  telefonos: ['+56911111111']
+
+test:
+  type: libredte\lib\Core\Package\Billing\Component\TradingParties\Contract\EmisorInterface
+  expect:
+    getActividadEconomica(): 471100
+    getTelefono(): '+56922222222'

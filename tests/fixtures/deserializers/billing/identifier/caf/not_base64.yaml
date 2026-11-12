@@ -1,0 +1,10 @@
+description: >
+  Rechaza un string que no es base64 válido.
+
+body: '<AUTORIZACION/>'
+
+test:
+  type: libredte\lib\Core\Package\Billing\Component\Identifier\Contract\CafInterface
+  failure:
+    exception: Derafu\BackboneDispatcher\Exception\UnsupportedDataTypeException
+    message: requiere datos codificados en base64 válido

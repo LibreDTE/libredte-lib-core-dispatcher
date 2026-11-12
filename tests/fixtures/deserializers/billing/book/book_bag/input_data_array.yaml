@@ -1,0 +1,12 @@
+description: >
+  Mantiene un inputData que es un arreglo.
+
+body:
+  tipo: libro_ventas
+  inputData:
+    a: 1
+
+test:
+  type: libredte\lib\Core\Package\Billing\Component\Book\Contract\BookBagInterface
+  expect:
+    getInputData(): {a: 1}

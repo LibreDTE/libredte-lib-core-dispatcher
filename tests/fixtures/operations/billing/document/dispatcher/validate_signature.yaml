@@ -1,0 +1,18 @@
+# billing.document.dispatcher::validate_signature
+#
+# Mismo criterio que validate.yaml para `source`. Retorna un arreglo de
+# `SignatureValidationResultInterface` (objetos de `derafu/signature`, no
+# arreglos escalares) — solo se verifica éxito del despacho.
+description: >
+  Valida la firma XML de un sobre de envío (EnvioDTE) ya construido.
+
+request:
+  package: billing
+  component: document
+  worker: dispatcher
+  operation: validate_signature
+  parameters:
+    source: "{{sobreEnvioXml}}"
+
+expect:
+  success: {}

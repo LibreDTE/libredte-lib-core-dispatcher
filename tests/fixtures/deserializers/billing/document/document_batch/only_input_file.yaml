@@ -1,0 +1,10 @@
+description: >
+  No lee un archivo si solo se entrega inputFile.
+
+body:
+  inputFile: /etc/passwd
+
+test:
+  type: libredte\lib\Core\Package\Billing\Component\Document\Contract\DocumentBatchInterface
+  failure:
+    exception: libredte\lib\Core\Package\Billing\Component\Document\Exception\BatchProcessorException

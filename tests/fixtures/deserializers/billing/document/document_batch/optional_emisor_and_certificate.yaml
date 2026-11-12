@@ -1,0 +1,11 @@
+description: >
+  El emisor y el certificado son opcionales.
+
+body:
+  inputData: Y29udGVuaWRv
+
+test:
+  type: libredte\lib\Core\Package\Billing\Component\Document\Contract\DocumentBatchInterface
+  expect:
+    getEmisor(): null
+    getCertificate(): null

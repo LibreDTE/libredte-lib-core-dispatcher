@@ -1,0 +1,10 @@
+description: >
+  Rechaza un string que no es base64 válido.
+
+body: '<Root/>'
+
+test:
+  type: Derafu\Xml\Contract\XmlDocumentInterface
+  failure:
+    exception: Derafu\BackboneDispatcher\Exception\UnsupportedDataTypeException
+    message: requiere datos codificados en base64 válido

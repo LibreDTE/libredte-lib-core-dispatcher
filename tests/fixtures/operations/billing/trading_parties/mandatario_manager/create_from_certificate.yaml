@@ -1,0 +1,22 @@
+# billing.trading_parties.mandatario_manager::create_from_certificate
+#
+# Crea un Mandatario a partir de un certificado digital (fresco, generado en
+# el test, nunca un certificado en disco).
+description: >
+  Crea el mandatario dueño de un certificado digital fresco.
+
+request:
+  package: billing
+  component: trading_parties
+  worker: mandatario_manager
+  operation: create_from_certificate
+  parameters:
+    certificate: "{{certificate}}"
+
+expect:
+  success:
+    value_contains:
+      # El certificado fresco de prueba se genera con este commonName
+      # (ver CertificateFixture::generate()), que pasa a ser el "nombre"
+      # del mandatario.
+      nombre: LibreDTE Dispatcher Test
