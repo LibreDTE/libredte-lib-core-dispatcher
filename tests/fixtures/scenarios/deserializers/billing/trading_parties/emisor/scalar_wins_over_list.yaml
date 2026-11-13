@@ -1,0 +1,18 @@
+description: >
+  Si vienen el valor único y la lista, gana el valor único.
+
+steps:
+  build:
+    deserialize:
+      type: libredte\lib\Core\Package\Billing\Component\TradingParties\Contract\EmisorInterface
+      data:
+        rut: '76192083-9'
+        razon_social: SASCO SpA
+        actividad_economica: 471100
+        actividades_economicas: [620200]
+        telefono: '+56922222222'
+        telefonos: ['+56911111111']
+    expect:
+      call:
+        getActividadEconomica(): 471100
+        getTelefono(): '+56922222222'

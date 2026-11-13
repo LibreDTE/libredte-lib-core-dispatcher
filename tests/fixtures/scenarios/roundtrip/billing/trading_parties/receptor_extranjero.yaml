@@ -1,0 +1,33 @@
+# Receptor extranjero: además de los datos del contribuyente trae su
+# nacionalidad y su identificador en el extranjero. La salida serializada los
+# entrega con las mismas claves y se pueden volver a recibir.
+description: >
+  Receptor extranjero con nacionalidad e identificador extranjero.
+
+steps:
+  first:
+    deserialize:
+      type: libredte\lib\Core\Package\Billing\Component\TradingParties\Contract\ReceptorInterface
+      data:
+        rut: '55555555-5'
+        razon_social: Cliente Extranjero
+        giro: Comercio
+        email: cliente@example.com
+        direccion: Calle Extranjera 1
+        comuna: Santiago
+        ciudad: Santiago
+        nacionalidad: AR
+        identificador_extranjero: ABC-12345
+        codigo_interno: C-002
+    expect:
+      rut: '55555555-5'
+      nacionalidad: AR
+      identificador_extranjero: ABC-12345
+      codigo_interno: C-002
+
+  second:
+    deserialize:
+      type: libredte\lib\Core\Package\Billing\Component\TradingParties\Contract\ReceptorInterface
+      data: !ref first.value
+    expect:
+      '@': !ref first.value

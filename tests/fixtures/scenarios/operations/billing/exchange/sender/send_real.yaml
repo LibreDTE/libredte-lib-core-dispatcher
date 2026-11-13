@@ -1,0 +1,49 @@
+# billing.exchange.sender::send (camino real, contra un servidor de correo)
+#
+# A diferencia de send.yaml (credenciales vacías, siempre falla localmente
+# sin red), este escenario envía de verdad por SMTP a un servidor GreenMail en
+# Docker (el mismo que usa libredte-lib-core en sus tests de correo). Se
+# levanta solo cuando un escenario usa un `!fixture mail_*`. Sin Docker el
+# escenario se salta (requisito `docker`).
+description: >
+  Envía un sobre por SMTP, de `ana` a `beto`, a un servidor de correo real en Docker.
+
+requires: [docker]
+
+steps:
+  request:
+    dispatch:
+      operation: billing.exchange.sender::send
+      parameters:
+        bag:
+          options:
+            strategy: email.smtp
+            transport: !fixture mail_sender_transport
+          envelopes:
+            - sender:
+                identifier:
+                  value: '76192083-9'
+                  scheme_id: CL-RUT
+                endpoints:
+                  - value: !fixture mail_sender_address
+                    scheme_id: EMAIL
+              receiver:
+                identifier:
+                  value: '76192083-9'
+                  scheme_id: CL-RUT
+                endpoints:
+                  - value: !fixture mail_receiver_address
+                    scheme_id: EMAIL
+              document_type: 'urn:fdc:libredte.cl:2025:doc:invoice'
+              process: 'urn:fdc:libredte.cl:2025:poacc:billing'
+              business_message_id: envio-real-001
+              documents:
+                - type: 'urn:fdc:libredte.cl:2025:doc:invoice'
+                  attachments:
+                    - data: 'PEVudmlvRFRFPkZpeHR1cmUgZGUgcHJ1ZWJhIGRlIGJpbGxpbmcuZXhjaGFuZ2Uuc2VuZGVyOjpzZW5kPC9FbnZpb0RURT4='
+                      name: envio.xml
+                      type: application/xml
+    expect:
+      '[0].statuses[0].strategy': email.smtp
+      '[0].statuses[0].error': null
+      'contains(keys([0].statuses[0]), ''error'')': true

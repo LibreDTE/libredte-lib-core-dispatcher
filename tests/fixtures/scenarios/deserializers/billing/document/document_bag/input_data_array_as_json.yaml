@@ -1,0 +1,15 @@
+description: >
+  Mantiene un inputData que es un arreglo, como JSON.
+
+steps:
+  build:
+    deserialize:
+      type: libredte\lib\Core\Package\Billing\Component\Document\Contract\DocumentBagInterface
+      data:
+        inputData:
+          Encabezado:
+            IdDoc:
+              TipoDTE: 33
+    expect:
+      call:
+        getInputData(): '{"Encabezado":{"IdDoc":{"TipoDTE":33}}}'

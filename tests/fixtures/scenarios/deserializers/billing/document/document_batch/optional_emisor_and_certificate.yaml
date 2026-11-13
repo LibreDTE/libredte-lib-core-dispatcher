@@ -1,0 +1,13 @@
+description: >
+  El emisor y el certificado son opcionales.
+
+steps:
+  build:
+    deserialize:
+      type: libredte\lib\Core\Package\Billing\Component\Document\Contract\DocumentBatchInterface
+      data:
+        inputData: Y29udGVuaWRv
+    expect:
+      call:
+        getEmisor(): null
+        getCertificate(): null

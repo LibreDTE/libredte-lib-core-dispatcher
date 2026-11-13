@@ -1,0 +1,30 @@
+# billing.integration.sii_rcv::get_document_sii_reception_date
+#
+# Consulta la fecha de recepción de un documento en el SII. Con un folio
+# inventado se espera `failure` en la práctica.
+description: >
+  Consulta la fecha de recepción SII de un documento inventado.
+
+steps:
+  request:
+    dispatch:
+      operation: billing.integration.sii_rcv::get_document_sii_reception_date
+      parameters:
+        request:
+          certificate: !fixture sii_certificate_request
+          options:
+            environment: 1 # SiiEnvironment::STAGING (certificación).
+        company: !fixture sii_company_rut
+        document: 33
+        number: 999999999
+    either:
+      expect:
+        fecha_recepcion_sii: !any
+      failure:
+        exception:
+          # Con CertificateFaker (sin LIBREDTE_CERTIFICATE_FILE configurado) siempre
+          # falla acá: el certificado autofirmado nunca está registrado en el SII.
+          - libredte\lib\Core\Package\Billing\Component\Integration\Exception\SiiLazy\AuthenticateException
+          # Con un certificado real configurado, la autenticación puede tener éxito
+          # y fallar más adelante, en la operación específica.
+          - libredte\lib\Core\Package\Billing\Component\Integration\Exception\SiiRcv\GetDocumentSiiReceptionDateException

@@ -1,0 +1,13 @@
+description: >
+  El inputData es opcional.
+
+steps:
+  build:
+    deserialize:
+      type: libredte\lib\Core\Package\Billing\Component\Document\Contract\DocumentBagInterface
+      data:
+        parsedData:
+          Encabezado: []
+    expect:
+      call:
+        getInputData(): null

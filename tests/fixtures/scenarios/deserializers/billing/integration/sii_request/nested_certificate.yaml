@@ -1,0 +1,15 @@
+description: >
+  Construye una solicitud al SII deserializando recursivamente el certificado.
+
+steps:
+  build:
+    deserialize:
+      type: libredte\lib\Core\Package\Billing\Component\Integration\Contract\SiiRequestInterface
+      data:
+        certificate: !fixture certificate
+        options:
+          retries: 3
+    expect:
+      call:
+        getCertificate(): !instanceof Derafu\Certificate\Contract\CertificateInterface
+        getRetries(): 3

@@ -1,0 +1,30 @@
+# billing.document.parser::parse
+#
+# Parsea los datos de entrada de un documento (aquí un JSON con la estructura
+# oficial del SII, estrategia por defecto `default.json`) y entrega la bolsa
+# (`DocumentBagInterface`) con el dato parseado asignado (`document_parsed`).
+# Un `inputData` que es un arreglo viaja como JSON, sin base64.
+description: >
+  Parsea los datos de una factura afecta entregados como JSON y entrega la
+  bolsa con el dato parseado.
+
+steps:
+  request:
+    dispatch:
+      operation: billing.document.parser::parse
+      parameters:
+        bag:
+          inputData:
+            Encabezado:
+              IdDoc:
+                TipoDTE: 33
+                Folio: 1
+            Detalle:
+              - NmbItem: Servicio de prueba
+                QtyItem: 1
+                PrcItem: 10000
+    expect:
+      'document_parsed.Encabezado.IdDoc.TipoDTE': 33
+      'document_parsed.Encabezado.IdDoc.Folio': 1
+      'document_parsed.Detalle[0].NmbItem': Servicio de prueba
+      'document_parsed.Detalle[0].PrcItem': 10000

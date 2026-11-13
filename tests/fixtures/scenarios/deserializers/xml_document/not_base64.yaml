@@ -1,0 +1,12 @@
+description: >
+  Rechaza un string que no es base64 válido.
+
+steps:
+  rejected:
+    deserialize:
+      type: Derafu\Xml\Contract\XmlDocumentInterface
+      data: '<Root/>'
+    failure:
+      exception: Derafu\BackboneDispatcher\Exception\NoDeserializerFoundException
+      caused_by: Derafu\BackboneDispatcher\Exception\UnsupportedDataTypeException
+      message: requiere datos codificados en base64 válido

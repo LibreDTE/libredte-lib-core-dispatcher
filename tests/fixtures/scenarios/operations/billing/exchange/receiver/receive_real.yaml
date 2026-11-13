@@ -1,0 +1,67 @@
+# billing.exchange.receiver::receive (camino real, contra un servidor de correo)
+#
+# A diferencia de receive.yaml (credenciales vacías, siempre falla
+# localmente sin red), este escenario se conecta de verdad por IMAP a un
+# servidor GreenMail en Docker (el mismo que usa libredte-lib-core en sus
+# tests de correo). Se levanta solo cuando un escenario usa un
+# `!fixture mail_*`. Sin Docker el escenario se salta (requisito `docker`).
+#
+# Es el caso completo: la operación de `before` envía un sobre de `ana` a
+# `beto` por SMTP y luego se recibe por IMAP del buzón de `beto`. Los
+# buzones se vacían antes de cada escenario, así que `beto` solo tiene ese
+# sobre.
+description: >
+  Envía un sobre de `ana` a `beto` por SMTP y lo recibe por IMAP del buzón de
+  `beto`, contra un servidor de correo real en Docker. Llega un único sobre, con el mismo adjunto que se envió.
+
+requires: [docker]
+
+steps:
+  before:
+    dispatch:
+      operation: billing.exchange.sender::send
+      parameters:
+        bag:
+          options:
+            strategy: email.smtp
+            transport: !fixture mail_sender_transport
+          envelopes:
+            - sender:
+                identifier:
+                  value: '76192083-9'
+                  scheme_id: CL-RUT
+                endpoints:
+                  - value: !fixture mail_sender_address
+                    scheme_id: EMAIL
+              receiver:
+                identifier:
+                  value: '66666666-6'
+                  scheme_id: CL-RUT
+                endpoints:
+                  - value: !fixture mail_receiver_address
+                    scheme_id: EMAIL
+              document_type: 'urn:fdc:libredte.cl:2025:doc:invoice'
+              process: 'urn:fdc:libredte.cl:2025:poacc:billing'
+              business_message_id: envio-real-001
+              documents:
+                - type: 'urn:fdc:libredte.cl:2025:doc:invoice'
+                  attachments:
+                    - data: 'PEVudmlvRFRFPkZpeHR1cmUgZGUgcHJ1ZWJhIGRlIGJpbGxpbmcuZXhjaGFuZ2Uuc2VuZGVyOjpzZW5kPC9FbnZpb0RURT4='
+                      name: envio.xml
+                      type: application/xml
+
+  request:
+    dispatch:
+      operation: billing.exchange.receiver::receive
+      parameters:
+        bag:
+          options:
+            strategy: email.imap
+            transport: !fixture mail_receiver_transport
+    expect:
+      "length(envelopes)": 1
+      "length(results)": 1
+      'envelopes[0].sender.identifier.value': ana@example.com
+      'envelopes[0].receiver.identifier.value': beto@example.com
+      'envelopes[0].documents[0].attachments[0].data': 'PEVudmlvRFRFPkZpeHR1cmUgZGUgcHJ1ZWJhIGRlIGJpbGxpbmcuZXhjaGFuZ2Uuc2VuZGVyOjpzZW5kPC9FbnZpb0RURT4='
+      'envelopes[0].documents[0].attachments[0].name': envio.xml

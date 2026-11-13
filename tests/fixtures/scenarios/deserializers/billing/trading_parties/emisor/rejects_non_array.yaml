@@ -1,0 +1,11 @@
+description: >
+  Rechaza un dato que no es un mapa.
+
+steps:
+  rejected:
+    deserialize:
+      type: libredte\lib\Core\Package\Billing\Component\TradingParties\Contract\EmisorInterface
+      data: not-an-array
+    failure:
+      exception: Derafu\BackboneDispatcher\Exception\NoDeserializerFoundException
+      caused_by: Derafu\BackboneDispatcher\Exception\UnsupportedDataTypeException

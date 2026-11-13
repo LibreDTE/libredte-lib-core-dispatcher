@@ -45,7 +45,7 @@ use libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Exchange\ExchangeDo
 use libredte\lib\CoreDispatcher\Service\Deserializer\Billing\Integration\SiiRequestDeserializer;
 use libredte\lib\CoreDispatcher\Service\Deserializer\Billing\OwnershipTransfer\AecBagDeserializer;
 use libredte\lib\CoreDispatcher\Service\Deserializer\CertificateDeserializer;
-use libredte\lib\TestsCoreDispatcher\Fixture\FixtureContext;
+use libredte\lib\TestsCoreDispatcher\Fixture\CoreFixtures;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\UsesNamespace;
@@ -185,7 +185,7 @@ final class DeserializationValidationTest extends TestCase
     public function testAssignmentSourceAcceptsBothARealDocumentAndARealAec(): void
     {
         $factory = $this->factory();
-        $context = new FixtureContext();
+        $context = new CoreFixtures();
         $fields = ['cedente' => [], 'cesionario' => [], 'cesion' => []];
         $first = $factory->create(['source' => $context->facturaAfectaXml()] + $fields, AecBag::class);
         self::assertInstanceOf(AecBag::class, $first);

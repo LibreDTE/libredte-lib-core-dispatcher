@@ -1,0 +1,40 @@
+# Emisor con actividad económica y teléfono. La salida serializada entrega
+# `actividades_economicas` y `telefonos` como listas, y también se pueden
+# volver a recibir.
+description: >
+  Emisor con sus datos, actividad económica, teléfono y autorización DTE.
+
+steps:
+  first:
+    deserialize:
+      type: libredte\lib\Core\Package\Billing\Component\TradingParties\Contract\EmisorInterface
+      data:
+        rut: '76192083-9'
+        razon_social: SASCO SpA
+        giro: Desarrollo de software
+        actividad_economica: 620200
+        telefono: '+56912345678'
+        email: contacto@example.com
+        direccion: Calle 123
+        comuna: Santiago
+        ciudad: Santiago
+        sucursal: Casa Matriz
+        codigo_sucursal: 1
+        vendedor: V01
+        autorizacion_dte:
+          fecha_resolucion: '2014-08-22'
+          numero_resolucion: 80
+    expect:
+      rut: '76192083-9'
+      razon_social: SASCO SpA
+      'actividades_economicas[0]': 620200
+      'telefonos[0]': '+56912345678'
+      sucursal: Casa Matriz
+      'autorizacion_dte.numero_resolucion': 80
+
+  second:
+    deserialize:
+      type: libredte\lib\Core\Package\Billing\Component\TradingParties\Contract\EmisorInterface
+      data: !ref first.value
+    expect:
+      '@': !ref first.value

@@ -1,0 +1,12 @@
+description: >
+  Rechaza un inputData que no es base64 válido.
+
+steps:
+  rejected:
+    deserialize:
+      type: libredte\lib\Core\Package\Billing\Component\Document\Contract\DocumentBatchInterface
+      data:
+        inputData: 'esto no es base64!'
+    failure:
+      exception: Derafu\BackboneDispatcher\Exception\NoDeserializerFoundException
+      caused_by: Derafu\BackboneDispatcher\Exception\UnsupportedDataTypeException

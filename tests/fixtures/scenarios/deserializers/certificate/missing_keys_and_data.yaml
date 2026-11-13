@@ -1,0 +1,11 @@
+description: >
+  Rechaza un mapa sin los datos del certificado ni sus llaves.
+
+steps:
+  rejected:
+    deserialize:
+      type: Derafu\Certificate\Contract\CertificateInterface
+      data: {}
+    failure:
+      exception: InvalidArgumentException
+      message: Se requieren los datos del certificado (data y password) o sus llaves (certificate y privateKey).

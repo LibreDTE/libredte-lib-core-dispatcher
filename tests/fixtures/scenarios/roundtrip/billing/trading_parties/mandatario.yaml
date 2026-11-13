@@ -1,0 +1,24 @@
+# Mandatario: run, nombre y email. La salida serializada es el mismo mapa y se
+# puede volver a recibir tal cual.
+description: >
+  Mandatario con run, nombre y email.
+
+steps:
+  first:
+    deserialize:
+      type: libredte\lib\Core\Package\Billing\Component\TradingParties\Contract\MandatarioInterface
+      data:
+        run: '76192083-9'
+        nombre: SASCO SpA
+        email: contacto@example.com
+    expect:
+      run: '76192083-9'
+      nombre: SASCO SpA
+      email: contacto@example.com
+
+  second:
+    deserialize:
+      type: libredte\lib\Core\Package\Billing\Component\TradingParties\Contract\MandatarioInterface
+      data: !ref first.value
+    expect:
+      '@': !ref first.value

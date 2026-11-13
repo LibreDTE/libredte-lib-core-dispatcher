@@ -1,0 +1,16 @@
+description: >
+  Mantiene un inputData que es una lista de filas, la forma que carga el
+  cargador de libros con el formato array.
+
+steps:
+  build:
+    deserialize:
+      type: libredte\lib\Core\Package\Billing\Component\Book\Contract\BookBagInterface
+      data:
+        tipo: libro_ventas
+        inputData:
+          - TpoDoc: 33
+            NroDoc: 1
+    expect:
+      call:
+        getInputData(): [{TpoDoc: 33, NroDoc: 1}]

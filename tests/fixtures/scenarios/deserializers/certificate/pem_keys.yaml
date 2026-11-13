@@ -1,0 +1,11 @@
+description: >
+  Construye un certificado desde el certificado y la llave privada en PEM.
+
+steps:
+  build:
+    deserialize:
+      type: Derafu\Certificate\Contract\CertificateInterface
+      data: !fixture certificate
+    expect:
+      call:
+        getName(): LibreDTE Dispatcher Test

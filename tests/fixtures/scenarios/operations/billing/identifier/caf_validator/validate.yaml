@@ -1,0 +1,18 @@
+# billing.identifier.caf_validator::validate
+#
+# Valida la firma y las llaves pública/privada de un CAF. El fixture
+# `caf_factura_afecta` genera un CAF fresco en tiempo de test (nunca se
+# commitea un CAF real a disco).
+description: >
+  Valida un CAF fresco (generado en el test) y retorna la misma entidad CAF
+  ya validada.
+
+steps:
+  request:
+    dispatch:
+      operation: billing.identifier.caf_validator::validate
+      parameters:
+        caf: !fixture caf_factura_afecta
+    expect:
+      tipo_documento: 33
+      vigente: true

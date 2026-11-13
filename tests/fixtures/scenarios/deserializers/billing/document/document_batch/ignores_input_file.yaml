@@ -1,0 +1,14 @@
+description: >
+  Ignora la clave inputFile, para no leer archivos del servidor.
+
+steps:
+  build:
+    deserialize:
+      type: libredte\lib\Core\Package\Billing\Component\Document\Contract\DocumentBatchInterface
+      data:
+        inputData: Y29udGVuaWRv
+        inputFile: /etc/passwd
+    expect:
+      call:
+        getInputFile(): null
+        getInputData(): contenido

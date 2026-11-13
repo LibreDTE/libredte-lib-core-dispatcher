@@ -1,0 +1,16 @@
+description: >
+  Acepta las listas actividades_economicas y telefonos (la forma de la serialización), y usa su primer elemento.
+
+steps:
+  build:
+    deserialize:
+      type: libredte\lib\Core\Package\Billing\Component\TradingParties\Contract\ReceptorInterface
+      data:
+        rut: '66666666-6'
+        razon_social: Cliente de Prueba
+        actividades_economicas: [471100]
+        telefonos: ['+56987654321']
+    expect:
+      call:
+        getActividadEconomica(): 471100
+        getTelefono(): '+56987654321'

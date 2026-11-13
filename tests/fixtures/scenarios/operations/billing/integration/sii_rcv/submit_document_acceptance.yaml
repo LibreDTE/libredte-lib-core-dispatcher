@@ -1,0 +1,33 @@
+# billing.integration.sii_rcv::submit_document_acceptance
+#
+# Informa al SII la aceptación/reclamo de un documento recibido, en el
+# Registro de Compra y Venta. Con un folio inventado se espera `failure`
+# en la práctica.
+description: >
+  Informa aceptación de contenido (ACD) de un documento inventado.
+
+steps:
+  request:
+    dispatch:
+      operation: billing.integration.sii_rcv::submit_document_acceptance
+      parameters:
+        request:
+          certificate: !fixture sii_certificate_request
+          options:
+            environment: 1 # SiiEnvironment::STAGING (certificación).
+        company: !fixture sii_company_rut
+        document: 33
+        number: 999999999
+        action: ACD
+    either:
+      expect:
+        codigo: !any
+        glosa: !any
+      failure:
+        exception:
+          # Con CertificateFaker (sin LIBREDTE_CERTIFICATE_FILE configurado) siempre
+          # falla acá: el certificado autofirmado nunca está registrado en el SII.
+          - libredte\lib\Core\Package\Billing\Component\Integration\Exception\SiiLazy\AuthenticateException
+          # Con un certificado real configurado, la autenticación puede tener éxito
+          # y fallar más adelante, en la operación específica.
+          - libredte\lib\Core\Package\Billing\Component\Integration\Exception\SiiRcv\SubmitDocumentAcceptanceException

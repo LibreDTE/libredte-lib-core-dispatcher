@@ -50,6 +50,11 @@ class AecBagDeserializerTest extends TestCase
             {
                 return new stdClass();
             }
+
+            public function supports(string $class): bool
+            {
+                return true;
+            }
         };
 
         $deserializer = new AecBagDeserializer($factory, $this->documentBagManager());

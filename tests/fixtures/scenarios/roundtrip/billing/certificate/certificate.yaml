@@ -1,0 +1,21 @@
+# Certificado digital: el usuario envía el certificado y la llave privada en
+# PEM. La salida serializada los entrega como `cert` y `pkey` (más `chain` y
+# datos del certificado), y también se pueden volver a recibir.
+description: >
+  Certificado autofirmado de prueba enviado con certificate y privateKey.
+
+steps:
+  first:
+    deserialize:
+      type: Derafu\Certificate\Contract\CertificateInterface
+      data: !fixture certificate
+    expect:
+      is_active: true
+      chain: []
+
+  second:
+    deserialize:
+      type: Derafu\Certificate\Contract\CertificateInterface
+      data: !ref first.value
+    expect:
+      '@': !ref first.value

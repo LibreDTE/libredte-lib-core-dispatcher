@@ -1,0 +1,12 @@
+description: >
+  Sin inputData queda como un arreglo vacío.
+
+steps:
+  build:
+    deserialize:
+      type: libredte\lib\Core\Package\Billing\Component\Book\Contract\BookBagInterface
+      data:
+        tipo: libro_ventas
+    expect:
+      call:
+        getInputData(): []

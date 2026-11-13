@@ -1,0 +1,14 @@
+description: >
+  Mantiene un inputData que es un arreglo.
+
+steps:
+  build:
+    deserialize:
+      type: libredte\lib\Core\Package\Billing\Component\Book\Contract\BookBagInterface
+      data:
+        tipo: libro_ventas
+        inputData:
+          a: 1
+    expect:
+      call:
+        getInputData(): {a: 1}

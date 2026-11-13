@@ -1,0 +1,21 @@
+# Sobre de documentos: el usuario envía el XML del EnvioDTE en base64. La
+# salida serializada es un mapa con el sobre completo; lo que se puede volver
+# a recibir es su clave `xml` (también en base64), por eso se reenvía `xml`.
+description: >
+  Sobre de envío (EnvioDTE) con un documento, enviado como XML en base64.
+
+steps:
+  first:
+    deserialize:
+      type: libredte\lib\Core\Package\Billing\Component\Document\Contract\DocumentEnvelopeInterface
+      data: !fixture sobre_envio_xml
+    expect:
+      tag: EnvioDTE
+      'caratula.RutEmisor': '76192083-9'
+
+  second:
+    deserialize:
+      type: libredte\lib\Core\Package\Billing\Component\Document\Contract\DocumentEnvelopeInterface
+      data: !ref first.value.xml
+    expect:
+      '@': !ref first.value

@@ -1,0 +1,12 @@
+description: >
+  Rechaza un dato que no es un string.
+
+steps:
+  rejected:
+    deserialize:
+      type: libredte\lib\Core\Package\Billing\Component\Document\Contract\DocumentEnvelopeInterface
+      data:
+        not: a string
+    failure:
+      exception: Derafu\BackboneDispatcher\Exception\NoDeserializerFoundException
+      caused_by: Derafu\BackboneDispatcher\Exception\UnsupportedDataTypeException

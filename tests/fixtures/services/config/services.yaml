@@ -6,14 +6,6 @@ services:
         alias: Derafu\BackboneDispatcher\Contract\ObjectFactoryInterface
         public: true
 
-    # Deserializadores registrados, indexados por el tipo que construyen, para
-    # llamarlos directamente (sin el envoltorio del `ObjectFactory`).
-    test.deserializers:
-        class: libredte\lib\TestsCoreDispatcher\Fixture\DeserializerLocator
-        arguments:
-            - !tagged_locator { tag: derafu_backbone_dispatcher.deserializer, index_by: type }
-        public: true
-
     libredte\lib\TestsCoreDispatcher\Fixture\DateTimeDeserializer:
         tags:
             - name: derafu_backbone_dispatcher.deserializer

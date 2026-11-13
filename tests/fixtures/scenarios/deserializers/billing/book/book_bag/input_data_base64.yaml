@@ -1,0 +1,13 @@
+description: >
+  Decodifica de base64 un inputData en texto (CSV en ISO-8859-1).
+
+steps:
+  build:
+    deserialize:
+      type: libredte\lib\Core\Package\Billing\Component\Book\Contract\BookBagInterface
+      data:
+        tipo: libro_ventas
+        inputData: RmVjaGE7VG90YWwKMjAyNS0wMS0wMTsxMDAwCkFzZXNvcu1hOzEK
+    expect:
+      call:
+        getInputData(): !!binary RmVjaGE7VG90YWwKMjAyNS0wMS0wMTsxMDAwCkFzZXNvcu1hOzEK

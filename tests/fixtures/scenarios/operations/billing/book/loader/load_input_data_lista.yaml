@@ -1,0 +1,39 @@
+# billing.book.loader::load, con las filas del libro en `inputData`
+#
+# Con el formato `array` (el de por defecto) el cargador toma las filas de
+# `inputData` cuando es una lista de filas, en vez de `detalle`. Con otros
+# formatos (por ejemplo CSV, que agrega `libredte-lib-pro`) `inputData` es el
+# contenido original en base64.
+description: >
+  Normaliza un libro de ventas cuyas filas vienen como lista en `inputData`,
+  sin `detalle`.
+
+steps:
+  request:
+    dispatch:
+      operation: billing.book.loader::load
+      parameters:
+        bag:
+          tipo: libro_ventas
+          caratula:
+            RutEmisorLibro: '76192083-9'
+            PeriodoTributario: '2024-01'
+          inputData:
+            - TpoDoc: 33
+              NroDoc: 1
+              TasaImp: 19
+              FchDoc: '2024-01-10'
+              RUTDoc: '66666666-6'
+              RznSoc: Cliente de Prueba
+              MntNeto: 100000
+              MntIVA: 19000
+              MntTotal: 119000
+          certificate: !fixture certificate
+          emisor:
+            rut: '76192083-9'
+            razon_social: SASCO SpA
+    expect:
+      'book_type.codigo': libro_ventas
+      'detalle[0].TpoDoc': 33
+      'detalle[0].NroDoc': 1
+      "length(detalle)": 1

@@ -1,0 +1,10 @@
+description: >
+  La validación de la factory por campos requeridos faltantes se propaga.
+
+steps:
+  rejected:
+    deserialize:
+      type: libredte\lib\Core\Package\Billing\Component\TradingParties\Contract\MandatarioInterface
+      data: {}
+    failure:
+      exception: LogicException

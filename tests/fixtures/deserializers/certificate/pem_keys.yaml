@@ -1,9 +1,0 @@
-description: >
-  Construye un certificado desde el certificado y la llave privada en PEM.
-
-body: "{{certificate}}"
-
-test:
-  type: Derafu\Certificate\Contract\CertificateInterface
-  expect:
-    getName(): LibreDTE Dispatcher Test

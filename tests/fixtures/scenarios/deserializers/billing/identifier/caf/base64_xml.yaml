@@ -1,0 +1,13 @@
+description: >
+  Construye un CAF desde su XML en base64.
+
+steps:
+  build:
+    deserialize:
+      type: libredte\lib\Core\Package\Billing\Component\Identifier\Contract\CafInterface
+      data: !fixture caf_factura_afecta
+    expect:
+      call:
+        getTipoDocumento(): 33
+        getFolioDesde(): 1
+        getFolioHasta(): 100

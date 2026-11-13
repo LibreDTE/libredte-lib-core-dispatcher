@@ -1,0 +1,29 @@
+# billing.document.renderer::render
+#
+# Renderiza un DTE ya construido a PDF. El valor de retorno ahora es un
+# `RenderResultInterface` serializado ({renderings: [...]}, contenido en
+# base64) — no el string binario crudo de antes. Sin la opción `renderings`,
+# se genera una sola presentación (`tributaria`), igual que el
+# comportamiento anterior a que existiera este concepto.
+description: >
+  Renderiza una factura afecta ya construida a PDF, con una sola
+  presentación (la tributaria, por defecto).
+
+steps:
+  request:
+    dispatch:
+      operation: billing.document.renderer::render
+      parameters:
+        bag:
+          xmlDocument: !fixture {name: document_xml, args: {type: factura_afecta}}
+          options:
+            renderer:
+              format: pdf
+    expect:
+      'renderings[0].label': tributaria
+      'renderings[0].mime_type': application/pdf
+      'renderings[0].copies': 1
+      'renderings[0].copy_number': 1
+      'renderings[0].content': !any
+      'renderings[0].filename': !any
+      "length(renderings)": 1

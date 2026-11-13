@@ -1,0 +1,44 @@
+# billing.exchange.sender::send
+#
+# Envía un sobre con un documento usando la estrategia configurada (por
+# defecto SMTP). Sin credenciales de transporte, la estrategia rechaza el
+# envío antes de intentar conectarse a ningún servidor — falla de forma
+# determinística y sin red, a diferencia de los escenarios de `Integration`
+# (que dependen de si hay o no un certificado real configurado).
+description: >
+  Intenta enviar un sobre por SMTP sin credenciales de transporte.
+
+steps:
+  request:
+    dispatch:
+      operation: billing.exchange.sender::send
+      parameters:
+        bag:
+          options:
+            strategy: email.smtp
+            transport:
+              username: ''
+              password: ''
+          envelopes:
+            - sender:
+                identifier:
+                  value: '76192083-9'
+                  scheme_id: CL-RUT
+                endpoints:
+                  - value: emisor@example.com
+                    scheme_id: EMAIL
+              receiver:
+                identifier:
+                  value: '66666666-6'
+                  scheme_id: CL-RUT
+                endpoints:
+                  - value: cliente@example.com
+                    scheme_id: EMAIL
+              document_type: 'urn:fdc:libredte.cl:2025:doc:invoice'
+              process: 'urn:fdc:libredte.cl:2025:poacc:billing'
+              business_message_id: envio-001
+              documents:
+                - type: 'urn:fdc:libredte.cl:2025:doc:invoice'
+                  content: ''
+    failure:
+      exception: libredte\lib\Core\Package\Billing\Component\Exchange\Exception\ExchangeException

@@ -1,0 +1,37 @@
+# billing.integration.sii_dte::request_xml_document_sent_status_by_email
+#
+# Pide al SII que envíe por correo el estado de un envío, identificado por
+# su `trackId`. Mismo criterio que checkXmlDocumentSentStatus.yaml: sin
+# certificado real (CertificateFaker), falla en la autenticación
+# (failure). Con certificado real, la autenticación tiene éxito y el SII
+# responde con éxito (success) rechazando la solicitud por trackId
+# desconocido o falta de permisos.
+description: >
+  Solicita por correo el estado de envío de un trackId inventado.
+
+steps:
+  request:
+    dispatch:
+      operation: billing.integration.sii_dte::request_xml_document_sent_status_by_email
+      parameters:
+        request:
+          certificate: !fixture sii_certificate_request
+          options:
+            environment: 1 # SiiEnvironment::STAGING (certificación).
+        trackId: 999999999
+        company: !fixture sii_company_rut
+    either:
+      expect:
+        # status/description dependen de la respuesta puntual del SII (ej.
+        # trackId desconocido, o usuario sin permisos sobre la empresa) —
+        # solo se exige que la respuesta real haya llegado con contenido.
+        status: !any
+        description: !any
+      failure:
+        exception:
+          # Con CertificateFaker (sin LIBREDTE_CERTIFICATE_FILE configurado) siempre
+          # falla acá: el certificado autofirmado nunca está registrado en el SII.
+          - libredte\lib\Core\Package\Billing\Component\Integration\Exception\SiiLazy\AuthenticateException
+          # Con un certificado real configurado, la autenticación puede tener éxito
+          # y fallar más adelante, en la operación específica.
+          - libredte\lib\Core\Package\Billing\Component\Integration\Exception\SiiDte\RequestXmlDocumentSentStatusByEmailException

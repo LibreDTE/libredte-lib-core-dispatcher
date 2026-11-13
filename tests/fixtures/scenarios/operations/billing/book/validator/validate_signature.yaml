@@ -1,0 +1,14 @@
+# billing.book.validator::validate_signature
+#
+# Mismo criterio que validateSchema.yaml para `source`. Retorna un
+# `SignatureValidationResultInterface` (objeto de `derafu/signature`, no un
+# arreglo) — solo se verifica éxito del despacho.
+description: >
+  Valida la firma XML de un libro de ventas ya construido.
+
+steps:
+  request:
+    dispatch:
+      operation: billing.book.validator::validate_signature
+      parameters:
+        source: !fixture libro_venta_xml

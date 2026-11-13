@@ -1,0 +1,22 @@
+# billing.document.builder::build
+#
+# Construye un DTE (factura afecta) a partir de datos crudos (parsedData),
+# un CAF fresco y un certificado fresco. Esta es exactamente la operación
+# cuyo `#[Operation]` original tenía un bug de ejemplo (clave 'detalle' en
+# vez de 'parsedData', ya corregido en libredte-lib-core) — este escenario
+# prueba en la práctica que la clave correcta ('parsedData') sí funciona.
+description: >
+  Construye una factura afecta (33) completa: timbrada con un CAF fresco y
+  firmada con un certificado fresco.
+
+steps:
+  request:
+    dispatch:
+      operation: billing.document.builder::build
+      parameters:
+        bag:
+          parsedData: !fixture {name: document_parsed_data, args: {type: factura_afecta}}
+          caf: !fixture caf_factura_afecta
+          certificate: !fixture certificate
+    expect:
+      document: !any

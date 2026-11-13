@@ -1,0 +1,52 @@
+# ExchangeBag: un sobre con su emisor, receptor, un documento y un adjunto
+# (contenidos en base64). La salida serializada tiene las mismas claves y se
+# puede volver a recibir tal cual.
+description: >
+  Sobre de intercambio con un documento y un adjunto.
+
+steps:
+  first:
+    deserialize:
+      type: libredte\lib\Core\Package\Billing\Component\Exchange\Contract\ExchangeBagInterface
+      data:
+        options:
+          strategy: email.smtp
+        envelopes:
+          - sender:
+              identifier:
+                value: '76192083-9'
+                scheme_id: CL-RUT
+              endpoints:
+                - value: emisor@example.com
+                  scheme_id: EMAIL
+            receiver:
+              identifier:
+                value: '66666666-6'
+                scheme_id: CL-RUT
+              endpoints:
+                - value: cliente@example.com
+                  scheme_id: EMAIL
+            document_type: 'urn:fdc:libredte.cl:2025:doc:invoice'
+            process: 'urn:fdc:libredte.cl:2025:poacc:billing'
+            business_message_id: envio-001
+            documents:
+              - type: 'urn:fdc:libredte.cl:2025:doc:invoice'
+                content: PERURT48L0RURT4=
+                attachments:
+                  - data: YWRqdW50bw==
+                    name: adjunto.txt
+                    type: text/plain
+    expect:
+      'options.strategy': email.smtp
+      'envelopes[0].business_message_id': envio-001
+      'envelopes[0].sender.identifier.value': '76192083-9'
+      'envelopes[0].receiver.endpoints[0].value': cliente@example.com
+      'envelopes[0].documents[0].content': PERURT48L0RURT4=
+      'envelopes[0].documents[0].attachments[0].name': adjunto.txt
+
+  second:
+    deserialize:
+      type: libredte\lib\Core\Package\Billing\Component\Exchange\Contract\ExchangeBagInterface
+      data: !ref first.value
+    expect:
+      '@': !ref first.value

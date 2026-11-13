@@ -1,0 +1,23 @@
+description: >
+  Decodifica el contenido en base64 y los campos anidados opcionales.
+
+steps:
+  build:
+    deserialize:
+      type: libredte\lib\Core\Package\Billing\Component\Document\Contract\DocumentBatchInterface
+      data:
+        inputData: VGlwb0RURTtGb2xpbwozMzsxCg==
+        emisor:
+          rut: '76192083-9'
+          razon_social: SASCO SpA
+        certificate: !fixture certificate
+        options:
+          batch_processor:
+            strategy: spreadsheet.csv
+    expect:
+      call:
+        getInputData(): !!binary VGlwb0RURTtGb2xpbwozMzsxCg==
+        getInputFile(): null
+        getEmisor(): !instanceof libredte\lib\Core\Package\Billing\Component\TradingParties\Contract\EmisorInterface
+        getCertificate(): !instanceof Derafu\Certificate\Contract\CertificateInterface
+        getBatchProcessorOptions(): {strategy: spreadsheet.csv}

@@ -1,9 +1,0 @@
-description: >
-  Rechaza un dato que no es un mapa.
-
-body: not-an-array
-
-test:
-  type: libredte\lib\Core\Package\Billing\Component\Integration\Contract\SiiRequestInterface
-  failure:
-    exception: Derafu\BackboneDispatcher\Exception\UnsupportedDataTypeException

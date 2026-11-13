@@ -1,0 +1,15 @@
+# billing.ownership_transfer.aec::validate_schema
+#
+# `source` es una unión `Aec|XmlDocumentInterface|string`. Se pasa el XML
+# del AEC como string plano para que resuelva a `XmlDocumentInterface`.
+description: >
+  Valida el esquema XML de un AEC ya construido.
+
+steps:
+  request:
+    dispatch:
+      operation: billing.ownership_transfer.aec::validate_schema
+      parameters:
+        source: !fixture aec_xml
+    expect:
+      'AEC.DocumentoAEC.Caratula.RutCedente': '76192083-9'

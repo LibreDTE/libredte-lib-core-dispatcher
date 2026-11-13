@@ -1,0 +1,16 @@
+description: >
+  Rechaza un inputData que es una lista: un arreglo es el documento como objeto
+  JSON, es decir, un mapa.
+
+steps:
+  rejected:
+    deserialize:
+      type: libredte\lib\Core\Package\Billing\Component\Document\Contract\DocumentBagInterface
+      data:
+        inputData:
+          - Encabezado:
+              IdDoc:
+                TipoDTE: 33
+    failure:
+      exception: Derafu\Value\Exception\TypeMismatchException
+      message: must be of type map

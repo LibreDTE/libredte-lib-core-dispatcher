@@ -1,0 +1,21 @@
+# CAF: el usuario envía el XML en base64. La salida serializada es un mapa
+# con el CAF completo; lo que se puede volver a recibir es su clave `xml`
+# (también en base64), por eso se reenvía `xml`.
+description: >
+  CAF de una factura afecta enviado como XML en base64.
+
+steps:
+  first:
+    deserialize:
+      type: libredte\lib\Core\Package\Billing\Component\Identifier\Contract\CafInterface
+      data: !fixture caf_factura_afecta
+    expect:
+      tipo_documento: 33
+      'emisor.rut': '76192083-9'
+
+  second:
+    deserialize:
+      type: libredte\lib\Core\Package\Billing\Component\Identifier\Contract\CafInterface
+      data: !ref first.value.xml
+    expect:
+      '@': !ref first.value

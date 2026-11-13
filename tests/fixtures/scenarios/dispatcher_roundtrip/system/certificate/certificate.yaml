@@ -1,0 +1,24 @@
+# Certificado: `certificate.loader::load` recibe un certificado y devuelve un
+# certificado. Su resultado, con `cert`, `pkey` y los datos del certificado, se
+# vuelve a enviar a la misma operación. Los dos resultados deben ser iguales.
+description: >
+  Carga un certificado autofirmado de prueba y reenvía su resultado a la misma
+  operación.
+
+steps:
+  first:
+    dispatch:
+      operation: system.certificate.loader::load
+      parameters:
+        certificate: !fixture certificate
+    expect:
+      is_active: true
+      chain: []
+
+  second:
+    dispatch:
+      operation: system.certificate.loader::load
+      parameters:
+        certificate: !ref first.value
+    expect:
+      '@': !ref first.value
